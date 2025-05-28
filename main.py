@@ -25,7 +25,7 @@ TOKEN = os.getenv("BOT_TOKEN")
 ADMIN_USER_ID = int(os.getenv("ADMIN_USER_ID"))
 ADMIN_GROUP_ID = int(os.getenv("ADMIN_GROUP_ID"))
 CHANNEL_ID = int(os.getenv("CHANNEL_ID"))
-ADMIN_SECOND_GROUP_ID = int(os.getenv("ADMIN_SECOND_GROUP_ID"))
+ADMIN_SECOND_GROUP_ID = int(os.getenv("ADMIN_SECOND_GROUP_ID "))
 WEBHOOK_URL = os.getenv("WEBHOOK_URL")
 WEB_SERVER_HOST = "0.0.0.0"
 WEB_SERVER_PORT = int(os.getenv("PORT", 8000))
@@ -64,17 +64,11 @@ class AdminState(StatesGroup):
 
 
 # Random phrases for voice message
-VOICE_PHRASES =  [
-    "Bugun havo juda zo'r, seks qiladigan",
-    "Seks go'zal, undan zavqlaning",
-    "Yangi kun yangi seks pozalari bilan keldi",
-    "Ehtiros siz bilan birga bo'lsin",
-    "Seks payti o'pish eng yaxshi dori",
-    "Spalniy har narsaning kaliti",
-    "Bugun eng Kayf qilib seks qilgan menman",
-    "Qaniydi yonimda bo'lib bag'ringa bosib seks qilganimizda",
-    "Qaynoq seks taftini his etmoqchiman",
-    "Hayot bu seks seks bu hayot"
+VOICE_PHRASES = [
+    "Men bu botdan foydalanish qoidalariga roziman.",
+    "Barcha ma'lumotlarim to'g'ri ekanligini tasdiqlayman.",
+    "Arizamni ko'rib chiqishingizni so'rayman.",
+    "Menga mos juftlik topishda yordam bering."
 ]
 
 
@@ -126,16 +120,16 @@ POSES_WOMAN = [
 
 # MJM tajribasi variantlari (Oila uchun)
 MJM_EXPERIENCE_OPTIONS = [
-    "Hali bo'lmagan 1-si",
-    "1 marta bo'lgan",
+    "Hali bo'lmagan",
+    "1-marta bo'lgan",
     "2-3 marta bo'lgan",
     "5 martadan ko'p (MJMni sevamiz)"
 ]
 
 # MJM tajribasi variantlari (Ayol uchun)
 MJM_EXPERIENCE_FEMALE_OPTIONS = [
-    "Hali bo'lmagan 1-si",
-    "1 marta bo'lgan",
+    "Hali bo'lmagan",
+    "1-marta bo'lgan",
     "2-3 marta bo'lgan",
     "5 martadan ko'p (MJMni sevaman)"
 ]
@@ -696,7 +690,7 @@ async def voice_message_handler(message: types.Message, state: FSMContext):
     await message.answer(
         f"Ovozli xabar qabul qilindi. Rahmat! Endi viloyatingizni tanlang."
     )
-    await message.delete() # Delete the prompt message if possible
+    # await message.delete() # Delete the prompt message if possible - this might cause issues with older messages
 
     await message.answer("Viloyatingizni tanlang:", reply_markup=viloyat_keyboard())
     await state.set_state(Form.VILOYAT)
@@ -831,7 +825,7 @@ async def family_wife_age_handler(message: types.Message, state: FSMContext):
     logging.info(f"User {message.from_user.id} entered wife age: {age}")
     await message.answer("Kim yozmoqda:", reply_markup=family_author_keyboard())
     await state.set_state(Form.FAMILY_AUTHOR)
-    await message.delete() # Delete the age input message
+    # await message.delete() # Delete the age input message - might cause issues
 
 
 @dp.callback_query(F.data.startswith("author_"), Form.FAMILY_AUTHOR)
@@ -1020,22 +1014,97 @@ async def forward_to_admin_chat_mode(message: types.Message):
 
 
 async def main():
+    # Aiogram 3.x uchun message handlerlarni ro'yxatdan o'tkazish
+    dp.message.register(start_handler, Command("start"))
+
+    # Callback query handlerlar
+    dp.callback_query.register(cancel_handler, F.data == "cancel")
+    dp.callback_query.register(about_bot_handler, F.data == "about_bot")
+    dp.callback_query.register(back_handler, F.data.startswith("back_"))
+    dp.callback_query.register(gender_handler, F.data.startswith("gender_"), Form.CHOOSE_GENDER)
+    dp.message.register(voice_message_handler, F.voice, Form.AWAITING_VOICE_MESSAGE) # Voice message handler
+    dp.message.register(invalid_voice_message_handler, ~F.voice, Form.AWAITING_VOICE_MESSAGE) # Invalid voice message handler
+    dp.callback_query.register(viloyat_handler, F.data.startswith("vil_"), Form.VILOYAT)
+    dp.callback_query.register(tuman_handler, F.data.startswith("tum_"), Form.TUMAN)
+    dp.callback_query.register(age_female_handler, F.data.startswith("age_"), Form.AGE_FEMALE)
+    dp.callback_query.register(female_choice_handler, F.data.startswith("choice_"), Form.FEMALE_CHOICE)
+    dp.callback_query.register(pose_woman_handler, F.data.startswith("pose_"), Form.POSE_WOMAN)
+    dp.callback_query.register(mjm_experience_family_handler, F.data.startswith("mjm_exp_family_"), Form.MJM_EXPERIENCE) # Corrected handler name
+    dp.callback_query.register(mjm_experience_female_handler, F.data.startswith("mjm_exp_female_"),
+                               Form.MJM_EXPERIENCE_FEMALE)
+    dp.callback_query.register(family_author_handler, F.data.startswith("author_"), Form.FAMILY_AUTHOR)
+    dp.callback_query.register(family_husband_choice_handler, F.data.startswith("h_choice_"),
+                               Form.FAMILY_HUSBAND_CHOICE)
+    dp.callback_query.register(family_wife_agreement_handler, F.data.startswith("wife_agree_"),
+                               Form.FAMILY_WIFE_AGREEMENT)
+    dp.callback_query.register(family_wife_choice_handler, F.data.startswith("w_choice_"), Form.FAMILY_WIFE_CHOICE)
+    dp.callback_query.register(family_husband_agreement_handler, F.data.startswith("husband_agree_"),
+                               Form.FAMILY_HUSBAND_AGREEMENT)
+
+    # Message handlerlar (statega bog'liq)
+    dp.message.register(jmj_age_handler, Form.JMJ_AGE)
+    # dp.message.register(jmj_age_invalid_handler, F.text, Form.JMJ_AGE) # Removed as jmj_age_handler handles validation
+    dp.message.register(jmj_details_handler, Form.JMJ_DETAILS)
+    dp.message.register(family_husband_age_handler, Form.FAMILY_HUSBAND_AGE)
+    # dp.message.register(family_husband_age_invalid_handler, F.text, Form.FAMILY_HUSBAND_AGE) # Removed as handler handles validation
+    dp.message.register(family_wife_age_handler, Form.FAMILY_WIFE_AGE)
+    # dp.message.register(family_wife_age_invalid_handler, F.text, Form.FAMILY_WIFE_AGE) # Removed as handler handles validation
+    dp.message.register(about_handler, Form.ABOUT)
+
+    # Admin va user suhbatini boshqarish handlerlari
+    dp.callback_query.register(admin_initiate_reply, F.data.startswith("admin_initiate_reply_"))
+    dp.message.register(admin_reply_to_user, AdminState.REPLYING_TO_USER) # Removed F.chat.id.in_ as AdminState handles it
+    dp.message.register(admin_end_reply, Command("endreply"), AdminState.REPLYING_TO_USER) # Removed F.chat.id.in_
+    dp.message.register(user_end_chat, Command("endchat")) # Removed F.chat.id.in_ as chat_mode_users set handles it
+
+    # Suhbat rejimida bo'lgan userlardan kelgan xabarlarni admin chatlariga forward qilish
+    dp.message.register(forward_user_message_to_admins_and_group, F.chat.id != ADMIN_USER_ID,
+                        F.chat.id != ADMIN_GROUP_ID, F.chat.id.in_(chat_mode_users))
+
+    # Boshqa message handlerlaridan keyin turishi kerak
+    dp.message.register(handle_unregistered_messages)
+
+
     if WEBHOOK_URL:
         # Webhook rejimi
-        logging.info(f"Starting bot in webhook mode. URL: {WEBHOOK_URL}")
+        logging.info(f"Setting webhook to {WEBHOOK_URL}")
+        await bot.set_webhook(WEBHOOK_URL)
+        logging.info("Webhook successfully set!")
+
         app = web.Application()
+
+        # Aiohttp ilovasiga startup va shutdown funksiyalarini ro'yxatdan o'tkazish
+        app.on_startup.append(on_startup)
+        app.on_shutdown.append(on_shutdown)
+
         webhook_requests_handler = SimpleRequestHandler(
             dispatcher=dp,
             bot=bot,
             secret_token=TOKEN  # Assuming TOKEN can be used as secret_token
         )
         webhook_requests_handler.register(app, "/webhook")
-        web.run_app(app, host=WEB_SERVER_HOST, port=WEB_SERVER_PORT)
+        
+        # MUHIM: web.run_app ni await qiling
+        await web.run_app(app, host=WEB_SERVER_HOST, port=WEB_SERVER_PORT)
     else:
         # Long polling rejimi
         logging.info("Starting bot in long-polling mode.")
         await dp.start_polling(bot)
 
+
+async def on_startup(app: web.Application) -> None:
+    logging.info(f"Setting webhook to {WEBHOOK_URL}")
+    await bot.set_webhook(WEBHOOK_URL)
+    logging.info("Webhook successfully set!")
+
+
+async def on_shutdown(app: web.Application) -> None:
+    logging.info("Deleting webhook...")
+    await bot.delete_webhook()
+    logging.info("Webhook deleted!")
+    await bot.session.close()  # Bot sessiyasini yopish
+
+
 if __name__ == "__main__":
-    pass
-    
+    # main() asinxron funksiyasini ishga tushiring
+    asyncio.run(main())
