@@ -29,7 +29,7 @@ WEB_SERVER_HOST = "0.0.0.0"
 WEB_SERVER_PORT = int(os.getenv("PORT", 8000))
 
 # Define your webhook path and secret
-#WEBHOOK_PATH = f"/webhook/{TOKEN}"
+WEBHOOK_PATH = f"/webhook/{TOKEN}"
 #WEBHOOK_SECRET = os.getenv("WEBHOOK_SECRET", "your_strong_webhook_secret_here") # Use a strong, unique secret
 
 # Bot va dispatcher obyektlarini yaratish
@@ -1084,4 +1084,4 @@ if __name__ == "__main__":
     # Then, run the aiohttp web application.
     # web.run_app handles its own event loop and will run until interrupted.
     logging.info(f"Starting web server on {WEB_SERVER_HOST}:{WEB_SERVER_PORT}...")
-    web.run_app(app, host=WEB_SERVER_HOST, port=WEB_SERVER_PORT)
+    web.run_app(app, host="0.0.0.0", port=port)
