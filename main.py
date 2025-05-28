@@ -1015,7 +1015,7 @@ async def main():
 
     app = web.Application()
     webhook_requests_handler = SimpleRequestHandler(dispatcher=dp, bot=bot)
-    webhook_requests_handler.register(app, path="/webhook")
+    webhook_requests_handler.register(app, path="/webhook") # Bu yerda faqat /webhook
     setup_application(app, dp, bot=bot)
 
     runner = web.AppRunner(app)
@@ -1052,7 +1052,8 @@ if __name__ == "__main__":
         # Ensure the web application is set up correctly for webhook
         app = web.Application()
         webhook_requests_handler = SimpleRequestHandler(dispatcher=dp, bot=bot)
-        webhook_requests_handler.register(app, path="/webhook")
+        # <<<<< Mana bu qatorni o'zgartiramiz >>>>>
+        webhook_requests_handler.register(app, path=f"/webhook/webhook/{os.getenv('BOT_TOKEN')}")
         setup_application(app, dp, bot=bot)
 
         runner = web.AppRunner(app)
@@ -1066,3 +1067,4 @@ if __name__ == "__main__":
             await asyncio.sleep(3600) # Sleep for 1 hour
 
     asyncio.run(start_webhook_server())
+
