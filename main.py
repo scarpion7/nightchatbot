@@ -962,7 +962,16 @@ async def admin_reply_to_user(message: types.Message, state: FSMContext):
         await message.answer(f"Xabar yuborishda xatolik yuz berdi: {e}")
         await state.clear()
 
-
+@dp.message(Command("endreply"), AdminState.REPLYING_TO_USER)
+async def admin_end_reply(message: types.Message, state: FSMContext):
+    """
+    Bu funksiya admin javob berish rejimini tugatish uchun /endreply buyrug'ini yuborganda ishga tushadi.
+    Holatni tozalaydi va adminni REPLYING_TO_USER holatidan chiqaradi.
+    """
+    await state.clear() # Foydalanuvchining REPLYING_TO_USER holatini tozalaymiz
+    await message.answer("Javob berish rejimi yakunlandi. Holat tozalandi.")
+    logging.info(f"Admin {message.from_user.id} ended reply mode.")
+    
 @dp.message(Command("chat"))
 async def chat_mode_on(message: types.Message, state: FSMContext):
     user_id = message.from_user.id
