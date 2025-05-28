@@ -64,14 +64,14 @@ class AdminState(StatesGroup):
 
 # Random phrases for voice verification
 RANDOM_PHRASES = [
-    "Salom, bugun havo ajoyib!",
-    "Hayot go'zal, undan bahra oling.",
-    "Omad doimo siz bilan bo'lsin.",
-    "Hech qachon taslim bo'lmang!",
-    "Kelajak sizga porloq bo'lsin.",
-    "Sevgi hayotni bezaydi.",
-    "Har bir kun - yangi imkoniyat.",
-    "Baxtli bo'lishni xohlaysizmi?",
+    "Salom, bugun havo ajoyib, seks qiladigan. Shunday emasmi?!",
+    "Seks go'zal, undan bahra oling.",
+    "Ehtiros doimo siz bilan bo'lsin.",
+    "Hech qachon  seksni rad etmang!",
+    "Spalnidagi aloqa sizga maroqli bo'lsin.",
+    "SEk va ehtiros hayotni bezaydi.",
+    "Har bir kun - bu yangi jinsiy aloqaga imkoniyat.",
+    "Baxtli bo'lishni xohlaysizmi, ko'proq seks qiling?",
     "Muvaffaqiyatga erishish uchun intiling.",
     "Orzularingizga ishoning."
 ]
@@ -305,7 +305,7 @@ async def send_application_to_destinations(data: dict, user: types.User):
         admin_message_text += (
             f"🗣️ **Ovozli tasdiqlash:**\n"
             f"  *Gap:* `{data['voice_phrase']}`\n"
-            f"  *Ovozli xabar:* `(Yuqoridagi foydalanuvchining profiliga o'ting va u yuborgan oxirgi ovozli xabarni tekshiring)`\n" # Admin can see the voice message directly in chat
+            f"  *Ovozli xabar:* `(Ariza pastidagi oxirgi ovozli xabarni tekshiring. Bu shu arizaning tasdig'i)`\n" # Admin can see the voice message directly in chat
         )
 
     if data.get('gender') == 'female':
@@ -314,7 +314,7 @@ async def send_application_to_destinations(data: dict, user: types.User):
             f"🤝 **Tanlov:** {'Erkak bilan' if data.get('choice') == '1' else ('👥 MJM (2ta erkak)' if data.get('choice') == '2' else ('👭 JMJ (Dugonam bor)' if data.get('choice') == '3' else 'None1'))}\n"
         )
         if data.get('choice') == '1':
-            admin_message_text += f"🤸 **Pozitsiya:** {data.get('pose', 'None1')}\n"
+            admin_message_text += f"🤸 **Poza:** {data.get('pose', 'None1')}\n"
         elif data.get('choice') == '2':
             admin_message_text += f"👥 **MJM tajriba:** {data.get('mjm_experience_female', 'None1')}\n"
         elif data.get('choice') == '3':
@@ -433,7 +433,7 @@ async def send_application_to_destinations(data: dict, user: types.User):
                                                                                                          'None1')
             channel_text += f"🤝 **Tanlov:** {choice_text}\n"
         if data.get('pose'):
-            channel_text += f"🤸 **Pozitsiya:** {data['pose']}\n"
+            channel_text += f"🤸 **Poza:** {data['pose']}\n"
         if data.get('mjm_experience_female') and data.get('choice') == '2':
             channel_text += f"👥 **MJM tajriba:** {data['mjm_experience_female']}\n"
         if data.get('jmj_age') and data.get('choice') == '3':
@@ -676,7 +676,7 @@ async def gender_handler(callback: types.CallbackQuery, state: FSMContext):
     if gender == "male":
         await callback.message.edit_text(
             "Kechirasiz, bu xizmat faqat ayollar va oilalar uchun.\n"
-            "Agar oila bo'lsangiz iltimos «Oilaman» bo'limini tanlang.",
+            "Agar oila bo'lsangiz va MJM istasangiz «Oilaman» bo'limini tanlang.",
             reply_markup=InlineKeyboardBuilder().button(
                 text="Qayta boshlash", callback_data="back_start"
             ).as_markup()
@@ -689,7 +689,7 @@ async def gender_handler(callback: types.CallbackQuery, state: FSMContext):
     phrase = random.choice(RANDOM_PHRASES)
     await state.update_data(voice_phrase=phrase)
     await callback.message.edit_text(
-        f"Jinsingiz tanlandi. Endi iltimos, quyidagi gapni ovozli xabar sifatida yuboring:\n\n`{phrase}`",
+        f"Jinsingiz tanlandi. Endi iltimos, quyidagi gapni ovozli xabar sifatida yuboring:Bu majburiy. Ishonch uchun\n\n`{phrase}`",
         parse_mode="Markdown"
     )
     await state.set_state(Form.VERIFY_VOICE)
