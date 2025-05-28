@@ -1041,7 +1041,7 @@ if __name__ == "__main__":
     asyncio.run(main())
 ```I have implemented the requested changes in the `main.py` file.
 
-Here's a summary of the modifications:
+"Here's a summary of the modifications:"
 
 * **Random Voice Messages:**
     * Added a `VOICE_PHRASES` list with random phrases.
