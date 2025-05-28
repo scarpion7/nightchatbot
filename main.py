@@ -29,8 +29,8 @@ WEB_SERVER_HOST = "0.0.0.0"
 WEB_SERVER_PORT = int(os.getenv("PORT", 8000))
 
 # Define your webhook path and secret
-WEBHOOK_PATH = f"/webhook/{TOKEN}"
-WEBHOOK_SECRET = os.getenv("WEBHOOK_SECRET", "your_strong_webhook_secret_here") # Use a strong, unique secret
+#WEBHOOK_PATH = f"/webhook/{TOKEN}"
+#WEBHOOK_SECRET = os.getenv("WEBHOOK_SECRET", "your_strong_webhook_secret_here") # Use a strong, unique secret
 
 # Bot va dispatcher obyektlarini yaratish
 bot = Bot(token=TOKEN, default=DefaultBotProperties(parse_mode=ParseMode.MARKDOWN))
