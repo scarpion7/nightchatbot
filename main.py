@@ -13,7 +13,7 @@ from aiogram.enums import ParseMode
 from aiogram.webhook.aiohttp_server import SimpleRequestHandler
 from aiohttp import web
 import asyncio
-import random # Import random for selecting phrases
+import random  # Import random for selecting phrases
 
 load_dotenv()
 
@@ -37,7 +37,7 @@ dp = Dispatcher()
 # Holatlar klassini aniqlash
 class Form(StatesGroup):
     CHOOSE_GENDER = State()
-    VERIFY_VOICE = State() # New state for voice verification
+    VERIFY_VOICE = State()  # New state for voice verification
     VILOYAT = State()
     TUMAN = State()
     AGE_FEMALE = State()
@@ -167,7 +167,7 @@ def viloyat_keyboard():
     builder = InlineKeyboardBuilder()
     for vil in VILOYATLAR:
         builder.row(types.InlineKeyboardButton(text=vil, callback_data=f"vil_{vil}"))
-    add_navigation_buttons(builder, "verify_voice") # Back to voice verification
+    add_navigation_buttons(builder, "verify_voice")  # Back to voice verification
     return builder.as_markup()
 
 
@@ -183,7 +183,7 @@ def tuman_keyboard(viloyat):
 # Ayolning yoshini tanlash klaviaturasi (Vertical)
 def age_female_keyboard():
     builder = InlineKeyboardBuilder()
-    ranges = ["18-22", "23-26", "27-30", "31-35","36-40","41-45","45+"]
+    ranges = ["18-22", "23-26", "27-30", "31-35", "36-40", "41-45", "45+"]
     for r in ranges:
         builder.row(types.InlineKeyboardButton(text=r, callback_data=f"age_{r}"))
     add_navigation_buttons(builder, "tuman")
@@ -249,7 +249,8 @@ def family_wife_agreement_keyboard():
     builder = InlineKeyboardBuilder()
     builder.row(types.InlineKeyboardButton(text="✅ Ha rozi", callback_data="wife_agree_Rozi"))
     builder.row(
-        types.InlineKeyboardButton(text="🔄 Yo'q, lekin men istayman (kondiraman)", callback_data="wife_agree_Rozi_emas"))
+        types.InlineKeyboardButton(text="🔄 Yo'q, lekin men istayman (kondiraman)",
+                                   callback_data="wife_agree_Rozi_emas"))
     builder.row(
         types.InlineKeyboardButton(text="❓ Bilmayman, hali aytib ko'rmadim", callback_data="wife_agree_Bilmayman"))
     add_navigation_buttons(builder, "family_husband_choice")
@@ -291,13 +292,12 @@ async def send_application_to_destinations(data: dict, user: types.User):
         admin_message_text += f"[{user.full_name}](tg://user?id={user.id}) (ID: `{user.id}`)\n"
         profile_link = f"tg://user?id={user.id}"
 
-
     admin_message_text += (
         f"📝 **Ism:** {user.full_name}\n"
-        f"🔗 **Profilga havola:** [User Profile]({profile_link})\n" # Added clickable profile link
-        f"🚻 **Jins:** {data.get('gender', 'None1')}\n"
-        f"🗺️ **Viloyat:** {data.get('viloyat', 'None1')}\n"
-        f"🏘️ **Tuman:** {data.get('tuman', 'None1')}\n"
+        f"🔗 **Profilga havola:** [User Profile]({profile_link})\n"  # Added clickable profile link
+        f"🚻 **Jins:** {data.get('gender', 'Kiritilmagan')}\n"
+        f"🗺️ **Viloyat:** {data.get('viloyat', 'Kiritilmagan')}\n"
+        f"🏘️ **Tuman:** {data.get('tuman', 'Kiritilmagan')}\n"
     )
 
     # Add voice verification info if available
@@ -305,46 +305,47 @@ async def send_application_to_destinations(data: dict, user: types.User):
         admin_message_text += (
             f"🗣️ **Ovozli tasdiqlash:**\n"
             f"  *Gap:* `{data['voice_phrase']}`\n"
-            f"  *Ovozli xabar:* `(Ariza pastidagi oxirgi ovozli xabarni tekshiring. Bu shu arizaning tasdig'i)`\n" # Admin can see the voice message directly in chat
+            f"  *Ovozli xabar:* `(Ariza pastidagi oxirgi ovozli xabarni tekshiring. Bu shu arizaning tasdig'i)`\n"
+        # Admin can see the voice message directly in chat
         )
 
     if data.get('gender') == 'female':
         admin_message_text += (
-            f"🎂 **Yosh:** {data.get('age', 'None1')}\n"
-            f"🤝 **Tanlov:** {'Erkak bilan' if data.get('choice') == '1' else ('👥 MJM (2ta erkak)' if data.get('choice') == '2' else ('👭 JMJ (Dugonam bor)' if data.get('choice') == '3' else 'None1'))}\n"
+            f"🎂 **Yosh:** {data.get('age', 'Kiritilmagan')}\n"
+            f"🤝 **Tanlov:** {'Erkak bilan' if data.get('choice') == '1' else ('👥 MJM (2ta erkak)' if data.get('choice') == '2' else ('👭 JMJ (Dugonam bor)' if data.get('choice') == '3' else 'Kiritilmagan'))}\n"
         )
         if data.get('choice') == '1':
-            admin_message_text += f"🤸 **Poza:** {data.get('pose', 'None1')}\n"
+            admin_message_text += f"🤸 **Poza:** {data.get('pose', 'Kiritilmagan')}\n"
         elif data.get('choice') == '2':
-            admin_message_text += f"👥 **MJM tajriba:** {data.get('mjm_experience_female', 'None1')}\n"
+            admin_message_text += f"👥 **MJM tajriba:** {data.get('mjm_experience_female', 'Kiritilmagan')}\n"
         elif data.get('choice') == '3':
             admin_message_text += (
-                f"🎂 **Dugona yoshi:** {data.get('jmj_age', 'None1')}\n"
-                f"ℹ️ **Dugona haqida:** {data.get('jmj_details', 'None1')}\n"
+                f"🎂 **Dugona yoshi:** {data.get('jmj_age', 'Kiritilmagan')}\n"
+                f"ℹ️ **Dugona haqida:** {data.get('jmj_details', 'Kiritilmagan')}\n"
             )
 
     elif data.get('gender') == 'family':
         admin_message_text += (
-            f"👨 **Erkak yoshi:** {data.get('husband_age', 'None1')}\n"
-            f"👩 **Ayol yoshi:** {data.get('wife_age', 'None1')}\n"
-            f"✍️ **Yozmoqda:** {'Erkak' if data.get('author') == 'husband' else ('Ayol' if data.get('author') == 'wife' else 'None1')}\n"
+            f"👨 **Erkak yoshi:** {data.get('husband_age', 'Kiritilmagan')}\n"
+            f"👩 **Ayol yoshi:** {data.get('wife_age', 'Kiritilmagan')}\n"
+            f"✍️ **Yozmoqda:** {'Erkak' if data.get('author') == 'husband' else ('Ayol' if data.get('author') == 'wife' else 'Kiritilmagan')}\n"
         )
         if data.get('author') == 'husband':
-            h_choice_text = {'mjm': '👥 MJM', 'erkak': '👨 Erkak (ayoli uchun)'}.get(data.get('h_choice'), 'None1')
+            h_choice_text = {'mjm': '👥 MJM', 'erkak': '👨 Erkak (ayoli uchun)'}.get(data.get('h_choice'), 'Kiritilmagan')
             admin_message_text += f"🎯 **Erkak tanlovi:** {h_choice_text}\n"
             if data.get('h_choice') == 'mjm':
-                admin_message_text += f"👥 **MJM tajriba:** {data.get('mjm_experience', 'None1')}\n"
-            admin_message_text += f"👩‍⚕️ **Ayol roziligi:** {data.get('wife_agreement', 'None1')}\n"
+                admin_message_text += f"👥 **MJM tajriba:** {data.get('mjm_experience', 'Kiritilmagan')}\n"
+            admin_message_text += f"👩‍⚕️ **Ayol roziligi:** {data.get('wife_agreement', 'Kiritilmagan')}\n"
 
         elif data.get('author') == 'wife':
             w_choice_text = {'mjm_husband': '👥 MJM (erim bilan)', 'mjm_strangers': '👥 MJM (begona 2 erkak bilan)',
-                             'erkak': '👨 Erkak (erimdan qoniqmayapman)'}.get(data.get('w_choice'), 'None1')
+                             'erkak': '👨 Erkak (erimdan qoniqmayapman)'}.get(data.get('w_choice'), 'Kiritilmagan')
             admin_message_text += f"🎯 **Ayol tanlovi:** {w_choice_text}\n"
             if data.get('w_choice') == 'mjm_husband':
-                admin_message_text += f"👨‍⚕️ **Erkak roziligi:** {data.get('husband_agreement', 'None1')}\n"
+                admin_message_text += f"👨‍⚕️ **Erkak roziligi:** {data.get('husband_agreement', 'Kiritilmagan')}\n"
 
     if data.get('about'):
-        admin_message_text += f"ℹ️ **Qo'shimcha malumotlar / Istaklar:** {data.get('about', 'None1')}\n"
+        admin_message_text += f"ℹ️ **Qo'shimcha malumotlar / Istaklar:** {data.get('about', 'Kiritilmagan')}\n"
 
     builder = InlineKeyboardBuilder()
     builder.button(text="✉️ Javob yozish", callback_data=f"admin_initiate_reply_{user.id}")
@@ -417,7 +418,7 @@ async def send_application_to_destinations(data: dict, user: types.User):
         channel_text += f"🗺️ **Viloyat:** {data['viloyat']}\n"
     if data.get('tuman'):
         channel_text += f"🏘️ **Tuman:** {data['tuman']}\n"
-    
+
     # Add voice verification info to channel message
     if data.get('voice_phrase') and data.get('voice_message_file_id'):
         channel_text += (
@@ -430,7 +431,7 @@ async def send_application_to_destinations(data: dict, user: types.User):
             channel_text += f"🎂 **Yosh:** {data['age']}\n"
         if data.get('choice'):
             choice_text = {'1': 'Erkak bilan', '2': '👥 MJM (2ta erkak)', '3': '👭 JMJ (Dugonam bor)'}.get(data['choice'],
-                                                                                                         'None1')
+                                                                                                         'Kiritilmagan')
             channel_text += f"🤝 **Tanlov:** {choice_text}\n"
         if data.get('pose'):
             channel_text += f"🤸 **Poza:** {data['pose']}\n"
@@ -446,26 +447,28 @@ async def send_application_to_destinations(data: dict, user: types.User):
         if data.get('wife_age'):
             channel_text += f"👩 **Ayol yoshi:** {data['wife_age']}\n"
         if data.get('author'):
-            author_text = {'husband': 'Erkak', 'wife': 'Ayol'}.get(data['author'], 'None1')
+            author_text = {'husband': 'Erkak', 'wife': 'Ayol'}.get(data['author'], 'Kiritilmagan')
             channel_text += f"✍️ **Yozmoqda:** {author_text}\n"
         if data.get('h_choice') and data.get('author') == 'husband':
-            h_choice_text = {'mjm': '👥 MJM', 'erkak': '👨 Erkak (ayoli uchun)'}.get(data['h_choice'], 'None1')
+            h_choice_text = {'mjm': '👥 MJM', 'erkak': '👨 Erkak (ayoli uchun)'}.get(data['h_choice'], 'Kiritilmagan')
             channel_text += f"🎯 **Erkak tanlovi:** {h_choice_text}\n"
         if data.get('mjm_experience') and data.get('author') == 'husband' and data.get(
                 'h_choice') == 'mjm':
             channel_text += f"👥 **MJM tajriba:** {data['mjm_experience']}\n"
         if data.get('wife_agreement') and data.get('author') == 'husband':
             wife_agree_text = {'✅ Ha rozi': '✅ Ha rozi', '🔄 Yo\'q, lekin men istayman': '🔄 Yo\'q, lekin men istayman',
-                               '❓ Bilmayman, hali aytmadim': '❓ Bilmayman, hali aytmadim'}.get(data['wife_agreement'], 'None1')
+                               '❓ Bilmayman, hali aytmadim': '❓ Bilmayman, hali aytmadim'}.get(data['wife_agreement'],
+                                                                                               'Kiritilmagan')
             channel_text += f"👩‍⚕️ **Ayol roziligi:** {wife_agree_text}\n"
         if data.get('w_choice') and data.get('author') == 'wife':
             w_choice_text = {'mjm_husband': '👥 MJM (erim bilan)', 'mjm_strangers': '👥 MJM (begona 2 erkak bilan)',
-                             'erkak': '👨 Erkak (erimdan qoniqmayapman)'}.get(data['w_choice'], 'None1')
+                             'erkak': '👨 Erkak (erimdan qoniqmayapman)'}.get(data['w_choice'], 'Kiritilmagan')
             channel_text += f"🎯 **Ayol tanlovi:** {w_choice_text}\n"
         if data.get('husband_agreement') and data.get('author') == 'wife' and data.get('w_choice') == 'mjm_husband':
-            husband_agree_text = {'✅ Ha rozi': '✅ Ha rozi', '🔄 Yo\'q, lekin men istayman': '🔄 Yo\'q, lekin men istayman',
+            husband_agree_text = {'✅ Ha rozi': '✅ Ha rozi',
+                                  '🔄 Yo\'q, lekin men istayman': '🔄 Yo\'q, lekin men istayman',
                                   '❓ Bilmayman, hali aytmadim': '❓ Bilmayman, hali aytmadim'}.get(
-                data['husband_agreement'], 'None1')
+                data['husband_agreement'], 'Kiritilmagan')
             channel_text += f"👨‍⚕️ **Erkak roziligi:** {husband_agree_text}\n"
 
     if data.get('about'):
@@ -502,7 +505,8 @@ async def start_handler(message: types.Message, state: FSMContext):
         return
 
     await state.clear()
-    await message.answer(f"Salom! {message.from_user.full_name} Iltimos, jinsingizni tanlang:", reply_markup=gender_keyboard())
+    await message.answer(f"Salom! {message.from_user.full_name} Iltimos, jinsingizni tanlang:",
+                         reply_markup=gender_keyboard())
     await state.set_state(Form.CHOOSE_GENDER)
     logging.info(f"User {message.from_user.id} started the bot.")
 
@@ -555,7 +559,7 @@ async def back_handler(callback: types.CallbackQuery, state: FSMContext):
     elif target_state_name == "gender":
         await state.set_state(Form.CHOOSE_GENDER)
         await callback.message.edit_text("Iltimos, jinsingizni tanlang:", reply_markup=gender_keyboard())
-    elif target_state_name == "verify_voice": # Added back for voice verification
+    elif target_state_name == "verify_voice":  # Added back for voice verification
         phrase = random.choice(RANDOM_PHRASES)
         await state.update_data(voice_phrase=phrase)
         await callback.message.edit_text(
@@ -643,11 +647,14 @@ async def back_handler(callback: types.CallbackQuery, state: FSMContext):
         if prev_state_for_about:
             await state.set_state(prev_state_for_about)
             if prev_state_for_about == Form.POSE_WOMAN:
-                await callback.message.edit_text("Iltimos, pozitsiyalardan birini tanlang:", reply_markup=poses_keyboard())
+                await callback.message.edit_text("Iltimos, pozitsiyalardan birini tanlang:",
+                                                 reply_markup=poses_keyboard())
             elif prev_state_for_about == Form.MJM_EXPERIENCE_FEMALE:
-                await callback.message.edit_text("MJM tajribangizni tanlang:", reply_markup=mjm_experience_keyboard(is_female=True))
+                await callback.message.edit_text("MJM tajribangizni tanlang:",
+                                                 reply_markup=mjm_experience_keyboard(is_female=True))
             elif prev_state_for_about == Form.MJM_EXPERIENCE:
-                await callback.message.edit_text("MJM tajribangizni tanlang:", reply_markup=mjm_experience_keyboard(is_female=False))
+                await callback.message.edit_text("MJM tajribangizni tanlang:",
+                                                 reply_markup=mjm_experience_keyboard(is_female=False))
             elif prev_state_for_about == Form.JMJ_DETAILS:
                 await callback.message.edit_text("Dugonangiz haqida qo'shimcha ma'lumot kiriting:")
             elif prev_state_for_about == Form.FAMILY_WIFE_AGREEMENT:
@@ -655,7 +662,8 @@ async def back_handler(callback: types.CallbackQuery, state: FSMContext):
             elif prev_state_for_about == Form.FAMILY_WIFE_CHOICE:
                 await callback.message.edit_text("Tanlang:", reply_markup=family_wife_choice_keyboard())
             elif prev_state_for_about == Form.FAMILY_HUSBAND_AGREEMENT:
-                await callback.message.edit_text("Erkakning roziligi:", reply_markup=family_husband_agreement_keyboard())
+                await callback.message.edit_text("Erkakning roziligi:",
+                                                 reply_markup=family_husband_agreement_keyboard())
             else:
                 await state.set_state(Form.CHOOSE_GENDER)
                 await callback.message.edit_text("Iltimos, jinsingizni tanlang:", reply_markup=gender_keyboard())
@@ -682,7 +690,8 @@ async def gender_handler(callback: types.CallbackQuery, state: FSMContext):
             ).as_markup()
         )
         await state.clear()
-        await callback.answer("Erkaklar uchun ro'yxatdan o'tish hozircha mavjud emas.Bu faqat ayollar va oilalr uchun", show_alert=True)
+        await callback.answer("Erkaklar uchun ro'yxatdan o'tish hozircha mavjud emas.Bu faqat ayollar va oilalr uchun",
+                              show_alert=True)
         return
 
     # Random phrase generation and prompt for voice message
@@ -694,6 +703,7 @@ async def gender_handler(callback: types.CallbackQuery, state: FSMContext):
     )
     await state.set_state(Form.VERIFY_VOICE)
     await callback.answer()
+
 
 @dp.message(F.voice, Form.VERIFY_VOICE)
 async def process_voice_message(message: types.Message, state: FSMContext):
@@ -707,7 +717,8 @@ async def process_voice_message(message: types.Message, state: FSMContext):
 
 @dp.message(F.text, Form.VERIFY_VOICE)
 async def handle_invalid_voice_input(message: types.Message):
-    await message.answer("Iltimos, matn emas, ovozli xabar yuboring. Ovozli xabarni yuborish uchun mikrofon belgisini bosing.")
+    await message.answer(
+        "Iltimos, matn emas, ovozli xabar yuboring. Ovozli xabarni yuborish uchun mikrofon belgisini bosing.")
 
 
 @dp.callback_query(F.data.startswith("vil_"), Form.VILOYAT)
@@ -751,10 +762,12 @@ async def female_choice_handler(callback: types.CallbackQuery, state: FSMContext
     await state.update_data(choice=choice)
     logging.info(f"User {callback.from_user.id} chose female choice: {choice}")
     if choice == "1":
-        await callback.message.edit_text("Iltimos, yoqtirgan pozalaringizdan birini tanlang:", reply_markup=poses_keyboard())
+        await callback.message.edit_text("Iltimos, yoqtirgan pozalaringizdan birini tanlang:",
+                                         reply_markup=poses_keyboard())
         await state.set_state(Form.POSE_WOMAN)
     elif choice == "2":
-        await callback.message.edit_text("MJM tajribangiz qanday asalim?:", reply_markup=mjm_experience_keyboard(is_female=True))
+        await callback.message.edit_text("MJM tajribangiz qanday asalim?:",
+                                         reply_markup=mjm_experience_keyboard(is_female=True))
         await state.set_state(Form.MJM_EXPERIENCE_FEMALE)
     elif choice == "3":
         await callback.message.edit_text("Dugonangizning yoshini kiriting:")
@@ -769,7 +782,8 @@ async def pose_woman_handler(callback: types.CallbackQuery, state: FSMContext):
         pose = POSES_WOMAN[pose_index]
         await state.update_data(pose=pose)
         logging.info(f"User {callback.from_user.id} chose pose: {pose}")
-        await callback.message.edit_text("O'zingiz haqingizda qo'shimcha ma'lumot, kimni qidirayotganingiz, uchrashuvdan nima kutyapsiz, qo'shimcha istaklaringiz. Kiriting:",
+        await callback.message.edit_text(
+            "O'zingiz haqingizda qo'shimcha ma'lumot, kimni qidirayotganingiz, uchrashuvdan nima kutyapsiz, qo'shimcha istaklaringiz. Kiriting:",
             reply_markup=InlineKeyboardBuilder().button(text="◀️ Orqaga", callback_data="back_pose_woman").as_markup())
 
         await state.set_state(Form.ABOUT)
@@ -784,8 +798,10 @@ async def mjm_experience_female_handler(callback: types.CallbackQuery, state: FS
         experience = MJM_EXPERIENCE_FEMALE_OPTIONS[exp_index]
         await state.update_data(mjm_experience_female=experience)
         logging.info(f"User {callback.from_user.id} chose female MJM experience: {experience}")
-        await callback.message.edit_text("O'zingiz haqingizda qo'shimcha ma'lumot, kimni qidirayotganingiz, uchrashuvdan nima kutyapsiz, qo'shimcha istaklaringiz. Kiriting:",
-                                         reply_markup=InlineKeyboardBuilder().button(text="◀️ Orqaga", callback_data="back_mjm_experience_female").as_markup())
+        await callback.message.edit_text(
+            "O'zingiz haqingizda qo'shimcha ma'lumot, kimni qidirayotganingiz, uchrashuvdan nima kutyapsiz, qo'shimcha istaklaringiz. Kiriting:",
+            reply_markup=InlineKeyboardBuilder().button(text="◀️ Orqaga",
+                                                        callback_data="back_mjm_experience_female").as_markup())
         await state.set_state(Form.ABOUT)
     else:
         await callback.answer("Noto'g'ri tanlov.", show_alert=True)
@@ -794,7 +810,7 @@ async def mjm_experience_female_handler(callback: types.CallbackQuery, state: FS
 @dp.message(F.text, Form.JMJ_AGE)
 async def jmj_age_handler(message: types.Message, state: FSMContext):
     age = message.text.strip()
-    if not re.match(r"^\d{2}$", age):  
+    if not re.match(r"^\d{2}$", age):
         await message.answer("Yoshingizni kiriting (masalan, 20, 33, 45).")
         return
     await message.answer(f"Yoshingiz qabul qilindi: {age}")
@@ -810,8 +826,9 @@ async def jmj_details_handler(message: types.Message, state: FSMContext):
     details = message.text.strip()
     await state.update_data(jmj_details=details)
     logging.info(f"User {message.from_user.id} entered JMJ details.")
-    await message.answer("O'zingiz haqingizda qo'shimcha ma'lumot, kimni qidirayotganingiz, uchrashuvdan nima kutyapsiz, qo'shimcha istaklaringiz. Kiriting:",
-                         reply_markup=InlineKeyboardBuilder().button(text="◀️ Orqaga", callback_data="back_jmj_details").as_markup())
+    await message.answer(
+        "O'zingiz haqingizda qo'shimcha ma'lumot, kimni qidirayotganingiz, uchrashuvdan nima kutyapsiz, qo'shimcha istaklaringiz. Kiriting:",
+        reply_markup=InlineKeyboardBuilder().button(text="◀️ Orqaga", callback_data="back_jmj_details").as_markup())
     await state.set_state(Form.ABOUT)
 
 
@@ -822,7 +839,7 @@ async def family_husband_age_handler(message: types.Message, state: FSMContext):
         await message.answer("Yoshingizni kiriting (masalan: 18, 22, 33).")
         return
     await message.answer(f"Yoshingiz qabul qilindi: {age}")
-   
+
     await state.update_data(husband_age=age)
     logging.info(f"User {message.from_user.id} entered husband's age: {age}")
     await message.answer("Ayolning yoshini kiriting:")
@@ -840,7 +857,7 @@ async def family_wife_age_handler(message: types.Message, state: FSMContext):
     logging.info(f"User {message.from_user.id} entered wife's age: {age}")
     await message.answer("Kim yozmoqda:", reply_markup=family_author_keyboard())
     await state.set_state(Form.FAMILY_AUTHOR)
-    await message.delete() # Delete previous message with age input
+    await message.delete()  # Delete previous message with age input
 
 
 @dp.callback_query(F.data.startswith("author_"), Form.FAMILY_AUTHOR)
@@ -863,7 +880,8 @@ async def family_husband_choice_handler(callback: types.CallbackQuery, state: FS
     await state.update_data(h_choice=h_choice)
     logging.info(f"User {callback.from_user.id} chose husband's choice: {h_choice}")
     if h_choice == "mjm":
-        await callback.message.edit_text("MJM tajribangizni tanlang:", reply_markup=mjm_experience_keyboard(is_female=False))
+        await callback.message.edit_text("MJM tajribangizni tanlang:",
+                                         reply_markup=mjm_experience_keyboard(is_female=False))
         await state.set_state(Form.MJM_EXPERIENCE)
     elif h_choice == "erkak":
         await callback.message.edit_text("Ayolning roziligi:", reply_markup=family_wife_agreement_keyboard())
@@ -891,12 +909,13 @@ async def family_wife_agreement_handler(callback: types.CallbackQuery, state: FS
         '✅ Ha rozi': '✅ Ha rozi',
         '🔄 Yo\'q, lekin men istayman (kondiraman)': '🔄 Yo\'q, lekin men istayman (kondiraman)',
         '❓ Bilmayman, hali aytib ko\'rmadim': '❓ Bilmayman, hali aytib ko\'rmadim'
-    }.get(agreement, 'None1')
+    }.get(agreement, 'Kiritilmagan')
     await state.update_data(wife_agreement=agreement_text)
     logging.info(f"User {callback.from_user.id} chose wife agreement: {agreement}")
-    await callback.message.edit_text("O'zingiz haqingizda qo'shimcha ma'lumot, kimni qidirayotganingiz, uchrashuvdan nima kutyapsiz, qo'shimcha istaklaringiz. Kiriting:",
-                                     reply_markup=InlineKeyboardBuilder().button(text="◀️ Orqaga", callback_data="back_family_wife_agreement").add(
-                                         types.InlineKeyboardButton(text="❌ Bekor qilish", callback_data="cancel")).as_markup())
+    await callback.message.edit_text(
+        "O'zingiz haqingizda qo'shimcha ma'lumot, kimni qidirayotganingiz, uchrashuvdan nima kutyapsiz, qo'shimcha istaklaringiz. Kiriting:",
+        reply_markup=InlineKeyboardBuilder().button(text="◀️ Orqaga", callback_data="back_family_wife_agreement").add(
+            types.InlineKeyboardButton(text="❌ Bekor qilish", callback_data="cancel")).as_markup())
     await state.set_state(Form.ABOUT)
 
 
@@ -909,9 +928,10 @@ async def family_wife_choice_handler(callback: types.CallbackQuery, state: FSMCo
         await callback.message.edit_text("Erkakning roziligi:", reply_markup=family_husband_agreement_keyboard())
         await state.set_state(Form.FAMILY_HUSBAND_AGREEMENT)
     elif w_choice in ["mjm_strangers", "erkak"]:
-        await callback.message.edit_text("O'zingiz haqingizda qo'shimcha ma'lumot, kimni qidirayotganingiz, uchrashuvdan nima kutyapsiz, qo'shimcha istaklaringiz. Kiriting:",
-                                         reply_markup=InlineKeyboardBuilder().button(text="◀️ Orqaga", callback_data="back_family_wife_choice").add(
-                                             types.InlineKeyboardButton(text="❌ Bekor qilish", callback_data="cancel")).as_markup())
+        await callback.message.edit_text(
+            "O'zingiz haqingizda qo'shimcha ma'lumot, kimni qidirayotganingiz, uchrashuvdan nima kutyapsiz, qo'shimcha istaklaringiz. Kiriting:",
+            reply_markup=InlineKeyboardBuilder().button(text="◀️ Orqaga", callback_data="back_family_wife_choice").add(
+                types.InlineKeyboardButton(text="❌ Bekor qilish", callback_data="cancel")).as_markup())
         await state.set_state(Form.ABOUT)
     await callback.answer()
 
@@ -923,12 +943,14 @@ async def family_husband_agreement_handler(callback: types.CallbackQuery, state:
         '✅ Ha rozi': '✅ Ha rozi',
         '🔄 Yo\'q, lekin men istayman (kondiraman)': '🔄 Yo\'q, lekin men istayman (kondiraman)',
         '❓ Bilmayman, hali aytib ko\'rmadim': '❓ Bilmayman, hali aytib ko\'rmadim'
-    }.get(agreement, 'None1')
+    }.get(agreement, 'Kiritilmagan')
     await state.update_data(husband_agreement=agreement_text)
     logging.info(f"User {callback.from_user.id} chose husband agreement: {agreement}")
-    await callback.message.edit_text("O'zingiz haqingizda qo'shimcha ma'lumot, kimni qidirayotganingiz, uchrashuvdan nima kutyapsiz, qo'shimcha istaklaringiz. Kiriting:",
-                                     reply_markup=InlineKeyboardBuilder().button(text="◀️ Orqaga", callback_data="back_family_husband_agreement").add(
-                                         types.InlineKeyboardButton(text="❌ Bekor qilish", callback_data="cancel")).as_markup())
+    await callback.message.edit_text(
+        "O'zingiz haqingizda qo'shimcha ma'lumot, kimni qidirayotganingiz, uchrashuvdan nima kutyapsiz, qo'shimcha istaklaringiz. Kiriting:",
+        reply_markup=InlineKeyboardBuilder().button(text="◀️ Orqaga",
+                                                    callback_data="back_family_husband_agreement").add(
+            types.InlineKeyboardButton(text="❌ Bekor qilish", callback_data="cancel")).as_markup())
     await state.set_state(Form.ABOUT)
 
 
@@ -972,14 +994,15 @@ async def end_chat_from_admin(message: types.Message, state: FSMContext):
     target_user_id = data.get('target_user_id')
     if target_user_id:
         try:
-            chat_mode_users.discard(target_user_id) # Remove user from chat mode
+            chat_mode_users.discard(target_user_id)  # Remove user from chat mode
             await bot.send_message(target_user_id, "Admin bilan suhbat tugatildi. Rahmat!")
             logging.info(f"Chat ended by admin for user {target_user_id}")
         except Exception as e:
             logging.error(f"Failed to send end chat message to user {target_user_id}: {e}")
     await state.clear()
     await message.answer("Suhbat tugatildi.")
-    
+
+
 @dp.message(F.sticker, AdminState.REPLYING_TO_USER)
 async def admin_send_sticker_to_user(message: types.Message, state: FSMContext):
     if message.from_user.id != ADMIN_USER_ID:
@@ -993,6 +1016,7 @@ async def admin_send_sticker_to_user(message: types.Message, state: FSMContext):
     except Exception as e:
         await message.answer(f"Stiker yuborishda xatolik: {e}")
         logging.error(f"Admin stiker yuborishda xatolik: {e}")
+
 
 @dp.message(F.sticker)
 async def user_send_sticker(message: types.Message):
@@ -1049,7 +1073,7 @@ async def main():
 
     app = web.Application()
     webhook_requests_handler = SimpleRequestHandler(dispatcher=dp, bot=bot)
-    webhook_requests_handler.register(app, path="/webhook") # Bu yerda faqat /webhook
+    webhook_requests_handler.register(app, path="/webhook")  # Bu yerda faqat /webhook
     setup_application(app, dp, bot=bot)
 
     runner = web.AppRunner(app)
@@ -1059,20 +1083,24 @@ async def main():
 
     # Keep the main loop running
     while True:
-        await asyncio.sleep(3600) # Sleep for 1 hour
+        await asyncio.sleep(3600)  # Sleep for 1 hour
+
 
 async def on_startup(bot: Bot):
     await bot.set_webhook(WEBHOOK_URL)
     logging.info(f"Webhook set to: {WEBHOOK_URL}")
 
+
 async def on_shutdown(bot: Bot):
     await bot.delete_webhook()
     logging.info("Webhook deleted.")
+
 
 if __name__ == "__main__":
     from aiogram.types import BotCommand
     from aiogram.methods import SetMyCommands
     from aiogram.webhook.aiohttp_server import setup_application
+
 
     async def set_default_commands(bot: Bot):
         commands = [
@@ -1080,6 +1108,7 @@ if __name__ == "__main__":
             BotCommand(command="endchat", description="Admin bilan suhbatni yakunlash")
         ]
         await bot.set_my_commands(commands)
+
 
     async def start_webhook_server():
         await set_default_commands(bot)
@@ -1098,7 +1127,7 @@ if __name__ == "__main__":
 
         # Keep the application running
         while True:
-            await asyncio.sleep(3600) # Sleep for 1 hour
+            await asyncio.sleep(3600)  # Sleep for 1 hour
+
 
     asyncio.run(start_webhook_server())
-
