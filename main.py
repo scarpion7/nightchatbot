@@ -824,7 +824,7 @@ async def family_husband_age_handler(message: types.Message, state: FSMContext):
         await message.answer("Yoshingizni kiriting (masalan: 18, 22, 33).")
         return
     await message.answer(f"Yoshingiz qabul qilindi: {age}")
-        return
+   
     await state.update_data(husband_age=age)
     logging.info(f"User {message.from_user.id} entered husband's age: {age}")
     await message.answer("Ayolning yoshini kiriting:")
