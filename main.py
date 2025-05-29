@@ -770,8 +770,8 @@ async def pose_woman_handler(callback: types.CallbackQuery, state: FSMContext):
         await state.update_data(pose=pose)
         logging.info(f"User {callback.from_user.id} chose pose: {pose}")
         await callback.message.edit_text("O'zingiz haqingizda qo'shimcha ma'lumot, kimni qidirayotganingiz, uchrashuvdan nima kutyapsiz, qo'shimcha istaklaringiz. Kiriting:",
-                                         reply_markup=InlineKeyboardBuilder().button(text="◀️ Orqaga", callback_data="back_pose_woman").add(
-                                             types.InlineKeyboardButton(text="❌ Bekor qilish", callback_data="cancel")).as_markup())
+            reply_markup=InlineKeyboardBuilder().button(text="◀️ Orqaga", callback_data="back_pose_woman").as_markup())
+
         await state.set_state(Form.ABOUT)
     else:
         await callback.answer("Noto'g'ri tanlov.", show_alert=True)
@@ -785,8 +785,7 @@ async def mjm_experience_female_handler(callback: types.CallbackQuery, state: FS
         await state.update_data(mjm_experience_female=experience)
         logging.info(f"User {callback.from_user.id} chose female MJM experience: {experience}")
         await callback.message.edit_text("O'zingiz haqingizda qo'shimcha ma'lumot, kimni qidirayotganingiz, uchrashuvdan nima kutyapsiz, qo'shimcha istaklaringiz. Kiriting:",
-                                         reply_markup=InlineKeyboardBuilder().button(text="◀️ Orqaga", callback_data="back_mjm_experience_female").add(
-                                             types.InlineKeyboardButton(text="❌ Bekor qilish", callback_data="cancel")).as_markup())
+                                         reply_markup=InlineKeyboardBuilder().button(text="◀️ Orqaga", callback_data="back_mjm_experience_female").as_markup())
         await state.set_state(Form.ABOUT)
     else:
         await callback.answer("Noto'g'ri tanlov.", show_alert=True)
@@ -812,8 +811,7 @@ async def jmj_details_handler(message: types.Message, state: FSMContext):
     await state.update_data(jmj_details=details)
     logging.info(f"User {message.from_user.id} entered JMJ details.")
     await message.answer("O'zingiz haqingizda qo'shimcha ma'lumot, kimni qidirayotganingiz, uchrashuvdan nima kutyapsiz, qo'shimcha istaklaringiz. Kiriting:",
-                         reply_markup=InlineKeyboardBuilder().button(text="◀️ Orqaga", callback_data="back_jmj_details").add(
-                             types.InlineKeyboardButton(text="❌ Bekor qilish", callback_data="cancel")).as_markup())
+                         reply_markup=InlineKeyboardBuilder().button(text="◀️ Orqaga", callback_data="back_jmj_details").as_markup())
     await state.set_state(Form.ABOUT)
 
 
