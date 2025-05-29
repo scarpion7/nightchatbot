@@ -502,7 +502,7 @@ async def start_handler(message: types.Message, state: FSMContext):
         return
 
     await state.clear()
-    await message.answer("Salom! {user.full_name} Iltimos, jinsingizni tanlang:", reply_markup=gender_keyboard())
+    await message.answer(f"Salom! {message.from_user.full_name} Iltimos, jinsingizni tanlang:", reply_markup=gender_keyboard())
     await state.set_state(Form.CHOOSE_GENDER)
     logging.info(f"User {message.from_user.id} started the bot.")
 
