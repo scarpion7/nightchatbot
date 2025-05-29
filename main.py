@@ -662,7 +662,7 @@ async def back_handler(callback: types.CallbackQuery, state: FSMContext):
             logging.warning(f"User {callback.from_user.id} back from ABOUT to unhandled previous state.")
         else:
             await state.set_state(Form.CHOOSE_GENDER)
-            await callback.message.edit_text("Iltimas, jinsingizni tanlang:", reply_markup=gender_keyboard())
+            await callback.message.edit_text("Iltimos, jinsingizni tanlang:", reply_markup=gender_keyboard())
         logging.warning(f"User {callback.from_user.id} back from ABOUT with no determined previous state.")
     await callback.answer()
 
@@ -682,7 +682,7 @@ async def gender_handler(callback: types.CallbackQuery, state: FSMContext):
             ).as_markup()
         )
         await state.clear()
-        await callback.answer("Erkaklar uchun ro'yxatdan o'tish hozircha mavjud emas.", show_alert=True)
+        await callback.answer("Erkaklar uchun ro'yxatdan o'tish hozircha mavjud emas.Bu faqat ayollar va oilalr uchun", show_alert=True)
         return
 
     # Random phrase generation and prompt for voice message
@@ -751,7 +751,7 @@ async def female_choice_handler(callback: types.CallbackQuery, state: FSMContext
     await state.update_data(choice=choice)
     logging.info(f"User {callback.from_user.id} chose female choice: {choice}")
     if choice == "1":
-        await callback.message.edit_text("Iltimos, yotirgan pozalaringizdan birini tanlang:", reply_markup=poses_keyboard())
+        await callback.message.edit_text("Iltimos, yoqtirgan pozalaringizdan birini tanlang:", reply_markup=poses_keyboard())
         await state.set_state(Form.POSE_WOMAN)
     elif choice == "2":
         await callback.message.edit_text("MJM tajribangiz qanday asalim?:", reply_markup=mjm_experience_keyboard(is_female=True))
