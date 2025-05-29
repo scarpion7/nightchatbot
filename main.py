@@ -981,6 +981,37 @@ async def end_chat_from_admin(message: types.Message, state: FSMContext):
             logging.error(f"Failed to send end chat message to user {target_user_id}: {e}")
     await state.clear()
     await message.answer("Suhbat tugatildi.")
+    
+@dp.message(F.sticker, AdminState.REPLYING_TO_USER)
+async def admin_send_sticker_to_user(message: types.Message, state: FSMContext):
+    if message.from_user.id != ADMIN_USER_ID:
+        return
+    data = await state.get_data()
+    target_user_id = data.get('target_user_id')
+    try:
+        await bot.send_sticker(chat_id=target_user_id, sticker=message.sticker.file_id)
+        await message.answer("Stiker foydalanuvchiga yuborildi.")
+        logging.info(f"Admin stiker yubordi foydalanuvchi {target_user_id} ga.")
+    except Exception as e:
+        await message.answer(f"Stiker yuborishda xatolik: {e}")
+        logging.error(f"Admin stiker yuborishda xatolik: {e}")
+
+@dp.message(F.sticker)
+async def user_send_sticker(message: types.Message):
+    if message.from_user.id == ADMIN_USER_ID:
+        return  # Admindan umumiy rejimda kelgan stikerlarni qayta ishlashmaydi
+    try:
+        profile_link = f"tg://user?id={message.from_user.id}"
+        caption = (
+            f"🧑‍💼 <b>Stiker yuborildi</b>\n"
+            f"👤 <a href='{profile_link}'>Profilga havola</a>\n"
+            f"ID: <code>{message.from_user.id}</code>"
+        )
+        await bot.send_sticker(chat_id=ADMIN_USER_ID, sticker=message.sticker.file_id)
+        await bot.send_message(chat_id=ADMIN_USER_ID, text=caption, parse_mode="HTML")
+        logging.info(f"Foydalanuvchi {message.from_user.id} stiker yubordi.")
+    except Exception as e:
+        logging.error(f"Stiker yuborishda xatolik: {e}")
 
 
 @dp.message(F.text, AdminState.REPLYING_TO_USER)
