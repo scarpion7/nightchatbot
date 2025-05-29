@@ -124,7 +124,7 @@ POSES_WOMAN = [
 
 # MJM tajribasi variantlari (Oila uchun)
 MJM_EXPERIENCE_OPTIONS = [
-    "Hali bo'lmagan 1si",
+    "Hali bo'lmagan 1-si",
     "1 marta bo'lgan",
     "2-3 marta bo'lgan",
     "5 martadan ko'p (MJMni sevamiz)"
@@ -183,7 +183,7 @@ def tuman_keyboard(viloyat):
 # Ayolning yoshini tanlash klaviaturasi (Vertical)
 def age_female_keyboard():
     builder = InlineKeyboardBuilder()
-    ranges = ["18-25", "26-35", "36-45", "45+"]
+    ranges = ["18-22", "23-26", "27-30", "31-35","36-40","41-45","45+"]
     for r in ranges:
         builder.row(types.InlineKeyboardButton(text=r, callback_data=f"age_{r}"))
     add_navigation_buttons(builder, "tuman")
@@ -795,8 +795,8 @@ async def mjm_experience_female_handler(callback: types.CallbackQuery, state: FS
 @dp.message(F.text, Form.JMJ_AGE)
 async def jmj_age_handler(message: types.Message, state: FSMContext):
    age = message.text.strip()
-    if not re.match(r"^\d{2}$", age):  # Faqat 2 xonali raqamlar, masalan 18, 22, 33
-        await message.answer("Iltimos, yoshingizni kiriting (masalan, 18, 22,).")
+    if not re.match(r"^\d{2}$", age):
+        await message.answer("Iltimos, yoshingizni kiriting (masalan, 18, 22, 33).")
         return
 
     await state.update_data(jmj_age=age)
@@ -818,9 +818,11 @@ async def jmj_details_handler(message: types.Message, state: FSMContext):
 
 @dp.message(F.text, Form.FAMILY_HUSBAND_AGE)
 async def family_husband_age_handler(message: types.Message, state: FSMContext):
-    age = message.text.strip()
+   age = message.text.strip()
     if not re.match(r"^\d{2}$", age):
-        await message.answer("Yoshingizni kiriting (masalan, 20,33).")
+        await message.answer("Yoshingizni kiriting (masalan: 18, 22, 33).")
+        return
+    await message.answer(f"Yoshingiz qabul qilindi: {age}")
         return
     await state.update_data(husband_age=age)
     logging.info(f"User {message.from_user.id} entered husband's age: {age}")
@@ -831,9 +833,10 @@ async def family_husband_age_handler(message: types.Message, state: FSMContext):
 @dp.message(F.text, Form.FAMILY_WIFE_AGE)
 async def family_wife_age_handler(message: types.Message, state: FSMContext):
     age = message.text.strip()
-    if not re.match(r"^\d{2}$", age):
-        await message.answer("Yoshingizni kiriting (masalan, 25, 30).")
+    if not re.match(r"^\d{2}$", age):  # Faqat 2 xonali raqamlar, masalan 18, 22, 33
+        await message.answer("Yoshingizni kiriting (masalan: 18, 22, 33).")
         return
+    await message.answer(f"Yoshingiz qabul qilindi: {age}")
     await state.update_data(wife_age=age)
     logging.info(f"User {message.from_user.id} entered wife's age: {age}")
     await message.answer("Kim yozmoqda:", reply_markup=family_author_keyboard())
