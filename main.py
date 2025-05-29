@@ -819,7 +819,7 @@ async def jmj_details_handler(message: types.Message, state: FSMContext):
 
 @dp.message(F.text, Form.FAMILY_HUSBAND_AGE)
 async def family_husband_age_handler(message: types.Message, state: FSMContext):
-   age = message.text.strip()
+    age = message.text.strip()
     if not re.match(r"^\d{2}$", age):
         await message.answer("Yoshingizni kiriting (masalan: 18, 22, 33).")
         return
