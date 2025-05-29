@@ -794,10 +794,11 @@ async def mjm_experience_female_handler(callback: types.CallbackQuery, state: FS
 
 @dp.message(F.text, Form.JMJ_AGE)
 async def jmj_age_handler(message: types.Message, state: FSMContext):
-   age = message.text.strip()
-    if not re.match(r"^\d{2}$", age):
-        await message.answer("Iltimos, yoshingizni kiriting (masalan, 18, 22, 33).")
+    age = message.text.strip()
+    if not re.match(r"^\d{2}$", age):  
+        await message.answer("Yoshingizni kiriting (masalan, 20, 33, 45).")
         return
+    await message.answer(f"Yoshingiz qabul qilindi: {age}")
 
     await state.update_data(jmj_age=age)
     logging.info(f"User {message.from_user.id} entered JMJ age: {age}")
