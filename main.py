@@ -64,16 +64,16 @@ class AdminState(StatesGroup):
 
 # Random phrases for voice verification
 RANDOM_PHRASES = [
-    "Salom, bugun havo ajoyib, seks qiladigan. Shunday emasmi?!",
-    "Seks go'zal, undan bahra oling.",
+    "Salom, bugun havo ajoyib, Spalnida qaynoq lazzat olib hordiq chiqaradigan. Shunday emasmi?!",
+    "Jinsiy aloqa go'zal, undan bahra oling.",
     "Ehtiros doimo siz bilan bo'lsin.",
     "Hech qachon  seksni rad etmang!",
     "Spalnidagi aloqa sizga maroqli bo'lsin.",
-    "SEk va ehtiros hayotni bezaydi.",
+    "Jinsiy aloqa va ehtiros hayotni bezaydi.",
     "Har bir kun - bu yangi jinsiy aloqaga imkoniyat.",
-    "Baxtli bo'lishni xohlaysizmi, ko'proq seks qiling?",
+    "Baxtli bo'lishni xohlaysizmi, ko'proq aloqa qiling?",
     "Muvaffaqiyatga erishish uchun intiling.",
-    "Orzularingizga ishoning."
+    "Orzularingizga ishoning.Lazzatlanishda davom eting"
 ]
 
 # Viloyatlar ro'yxati
@@ -119,7 +119,7 @@ TUMANLAR = {
 # Ayollar uchun pozitsiyalar ro'yxati
 POSES_WOMAN = [
     "Rakom", "Chavandoz(Ustizda sakrab)", "Oyolarimni yelkezga qo'yib", "Romantik/Erkalab",
-    "BSDM / Qiynab", "Hamma pozada", "Kunillingus / Minet / 69 / Lazzatli seks", "Anal/Romantik"
+    "BSDM / Qiynab/zo'rlab", "Aralash pozalarda", "Kunillingus / Minet / 69 / Lazzatli seks", "Anal/Romantik"
 ]
 
 # MJM tajribasi variantlari (Oila uchun)
@@ -247,11 +247,11 @@ def family_husband_choice_keyboard():
 # Oila: Ayolning roziligi klaviaturasi (Erkak tanlovidan keyin) (Vertical)
 def family_wife_agreement_keyboard():
     builder = InlineKeyboardBuilder()
-    builder.row(types.InlineKeyboardButton(text="✅ Ha rozi", callback_data="wife_agree_yes"))
+    builder.row(types.InlineKeyboardButton(text="✅ Ha rozi", callback_data="wife_agree_Rozi"))
     builder.row(
-        types.InlineKeyboardButton(text="🔄 Yo'q, lekin men istayman (kondiraman)", callback_data="wife_agree_convince"))
+        types.InlineKeyboardButton(text="🔄 Yo'q, lekin men istayman (kondiraman)", callback_data="wife_agree_Rozi_emas"))
     builder.row(
-        types.InlineKeyboardButton(text="❓ Bilmayman, hali aytib ko'rmadim", callback_data="wife_agree_unknown"))
+        types.InlineKeyboardButton(text="❓ Bilmayman, hali aytib ko'rmadim", callback_data="wife_agree_Bilmayman"))
     add_navigation_buttons(builder, "family_husband_choice")
     return builder.as_markup()
 
@@ -269,11 +269,11 @@ def family_wife_choice_keyboard():
 # Oila: Erkakning roziligi klaviaturasi (Ayol tanlovidan keyin) (Vertical)
 def family_husband_agreement_keyboard():
     builder = InlineKeyboardBuilder()
-    builder.row(types.InlineKeyboardButton(text="✅ Ha rozi", callback_data="husband_agree_yes"))
+    builder.row(types.InlineKeyboardButton(text="✅ Ha rozi", callback_data="husband_agree_Rozi"))
     builder.row(types.InlineKeyboardButton(text="🔄 Yo'q, lekin men istayman (kondiraman)",
-                                           callback_data="husband_agree_convince"))
+                                           callback_data="husband_agree_Rozi_emas"))
     builder.row(
-        types.InlineKeyboardButton(text="❓ Bilmayman, hali aytib ko'rmadim", callback_data="husband_agree_unknown"))
+        types.InlineKeyboardButton(text="❓ Bilmayman, hali aytib ko'rmadim", callback_data="husband_agree_Bilmayman"))
     add_navigation_buttons(builder, "family_wife_choice")
     return builder.as_markup()
 
@@ -541,7 +541,7 @@ async def back_handler(callback: types.CallbackQuery, state: FSMContext):
         await callback.answer("Siz suhbat rejimidasiz. Suhbatni tugatish uchun /endchat buyrug'ini bosing. \n\n"
                               "Agar suhbat tugasa admin sizga yoza olmaydi.\n\n"
                               "Istasangiz suhbatni tugatishdan oldin siz bilan bog'lanish uchun\n\n"
-                              " raqam yoki username qoldiring ", show_alert=True)
+                              "raqam yoki username qoldiring ", show_alert=True)
         return
 
     target_state_name = callback.data.split("_")[1]
@@ -754,7 +754,7 @@ async def female_choice_handler(callback: types.CallbackQuery, state: FSMContext
         await callback.message.edit_text("Iltimos, yotirgan pozalaringizdan birini tanlang:", reply_markup=poses_keyboard())
         await state.set_state(Form.POSE_WOMAN)
     elif choice == "2":
-        await callback.message.edit_text("MJM tajribangizni tanlang:", reply_markup=mjm_experience_keyboard(is_female=True))
+        await callback.message.edit_text("MJM tajribangiz qanday asalim?:", reply_markup=mjm_experience_keyboard(is_female=True))
         await state.set_state(Form.MJM_EXPERIENCE_FEMALE)
     elif choice == "3":
         await callback.message.edit_text("Dugonangizning yoshini kiriting:")
@@ -769,7 +769,7 @@ async def pose_woman_handler(callback: types.CallbackQuery, state: FSMContext):
         pose = POSES_WOMAN[pose_index]
         await state.update_data(pose=pose)
         logging.info(f"User {callback.from_user.id} chose pose: {pose}")
-        await callback.message.edit_text("O'zingiz haqingizda qo'shimcha ma'lumot, kimni qidirayotganingiz, kutilayotgan natijalar, va hokazo. Kiriting:",
+        await callback.message.edit_text("O'zingiz haqingizda qo'shimcha ma'lumot, kimni qidirayotganingiz, uchrashuvdan nima kutyapsiz, qo'shimcha istaklaringizo. Kiriting:",
                                          reply_markup=InlineKeyboardBuilder().button(text="◀️ Orqaga", callback_data="back_pose_woman").add(
                                              types.InlineKeyboardButton(text="❌ Bekor qilish", callback_data="cancel")).as_markup())
         await state.set_state(Form.ABOUT)
@@ -784,7 +784,7 @@ async def mjm_experience_female_handler(callback: types.CallbackQuery, state: FS
         experience = MJM_EXPERIENCE_FEMALE_OPTIONS[exp_index]
         await state.update_data(mjm_experience_female=experience)
         logging.info(f"User {callback.from_user.id} chose female MJM experience: {experience}")
-        await callback.message.edit_text("O'zingiz haqingizda qo'shimcha ma'lumot, kimni qidirayotganingiz, kutilayotgan natijalar, va hokazo. Kiriting:",
+        await callback.message.edit_text("O'zingiz haqingizda qo'shimcha ma'lumot, kimni qidirayotganingiz, uchrashuvdan nima kutyapsiz, qo'shimcha istaklaringizo. Kiriting:",
                                          reply_markup=InlineKeyboardBuilder().button(text="◀️ Orqaga", callback_data="back_mjm_experience_female").add(
                                              types.InlineKeyboardButton(text="❌ Bekor qilish", callback_data="cancel")).as_markup())
         await state.set_state(Form.ABOUT)
@@ -794,10 +794,11 @@ async def mjm_experience_female_handler(callback: types.CallbackQuery, state: FS
 
 @dp.message(F.text, Form.JMJ_AGE)
 async def jmj_age_handler(message: types.Message, state: FSMContext):
-    age = message.text.strip()
-    if not re.match(r"^\d{1,2}-\d{1,2}$|^\d{2}\+$", age): # Example: "20-25" or "30+"
-        await message.answer("Yoshingizni 'XX-XX' yoki 'XX+' formatida kiriting (masalan, 20-25, 30+).")
+   age = message.text.strip()
+    if not re.match(r"^\d{2}$", age):  # Faqat 2 xonali raqamlar, masalan 18, 22, 33
+        await message.answer("Iltimos, yoshingizni kiriting (masalan, 18, 22,).")
         return
+
     await state.update_data(jmj_age=age)
     logging.info(f"User {message.from_user.id} entered JMJ age: {age}")
     await message.answer("Dugonangiz haqida qo'shimcha ma'lumot kiriting:")
@@ -809,7 +810,7 @@ async def jmj_details_handler(message: types.Message, state: FSMContext):
     details = message.text.strip()
     await state.update_data(jmj_details=details)
     logging.info(f"User {message.from_user.id} entered JMJ details.")
-    await message.answer("O'zingiz haqingizda qo'shimcha ma'lumot, kimni qidirayotganingiz, kutilayotgan natijalar, va hokazo. Kiriting:",
+    await message.answer("O'zingiz haqingizda qo'shimcha ma'lumot, kimni qidirayotganingiz, uchrashuvdan nima kutyapsiz, qo'shimcha istaklaringizo. Kiriting:",
                          reply_markup=InlineKeyboardBuilder().button(text="◀️ Orqaga", callback_data="back_jmj_details").add(
                              types.InlineKeyboardButton(text="❌ Bekor qilish", callback_data="cancel")).as_markup())
     await state.set_state(Form.ABOUT)
@@ -818,8 +819,8 @@ async def jmj_details_handler(message: types.Message, state: FSMContext):
 @dp.message(F.text, Form.FAMILY_HUSBAND_AGE)
 async def family_husband_age_handler(message: types.Message, state: FSMContext):
     age = message.text.strip()
-    if not re.match(r"^\d{1,2}-\d{1,2}$|^\d{2}\+$", age):
-        await message.answer("Yoshingizni 'XX-XX' yoki 'XX+' formatida kiriting (masalan, 20-25, 30+).")
+    if not re.match(r"^\d{2}$", age):
+        await message.answer("Yoshingizni kiriting (masalan, 20,33).")
         return
     await state.update_data(husband_age=age)
     logging.info(f"User {message.from_user.id} entered husband's age: {age}")
@@ -830,8 +831,8 @@ async def family_husband_age_handler(message: types.Message, state: FSMContext):
 @dp.message(F.text, Form.FAMILY_WIFE_AGE)
 async def family_wife_age_handler(message: types.Message, state: FSMContext):
     age = message.text.strip()
-    if not re.match(r"^\d{1,2}-\d{1,2}$|^\d{2}\+$", age):
-        await message.answer("Yoshingizni 'XX-XX' yoki 'XX+' formatida kiriting (masalan, 20-25, 30+).")
+    if not re.match(r"^\d{2}$", age):
+        await message.answer("Yoshingizni kiriting (masalan, 25, 30).")
         return
     await state.update_data(wife_age=age)
     logging.info(f"User {message.from_user.id} entered wife's age: {age}")
@@ -885,13 +886,13 @@ async def mjm_experience_family_handler(callback: types.CallbackQuery, state: FS
 async def family_wife_agreement_handler(callback: types.CallbackQuery, state: FSMContext):
     agreement = callback.data.split("_")[2]
     agreement_text = {
-        'yes': '✅ Ha rozi',
-        'convince': '🔄 Yo\'q, lekin men istayman (kondiraman)',
-        'unknown': '❓ Bilmayman, hali aytib ko\'rmadim'
+        '✅ Ha rozi': '✅ Ha rozi',
+        '🔄 Yo\'q, lekin men istayman (kondiraman)': '🔄 Yo\'q, lekin men istayman (kondiraman)',
+        '❓ Bilmayman, hali aytib ko\'rmadim': '❓ Bilmayman, hali aytib ko\'rmadim'
     }.get(agreement, 'None1')
     await state.update_data(wife_agreement=agreement_text)
     logging.info(f"User {callback.from_user.id} chose wife agreement: {agreement}")
-    await callback.message.edit_text("O'zingiz haqingizda qo'shimcha ma'lumot, kimni qidirayotganingiz, kutilayotgan natijalar, va hokazo. Kiriting:",
+    await callback.message.edit_text("O'zingiz haqingizda qo'shimcha ma'lumot, kimni qidirayotganingiz, uchrashuvdan nima kutyapsiz, qo'shimcha istaklaringizo. Kiriting:",
                                      reply_markup=InlineKeyboardBuilder().button(text="◀️ Orqaga", callback_data="back_family_wife_agreement").add(
                                          types.InlineKeyboardButton(text="❌ Bekor qilish", callback_data="cancel")).as_markup())
     await state.set_state(Form.ABOUT)
@@ -906,7 +907,7 @@ async def family_wife_choice_handler(callback: types.CallbackQuery, state: FSMCo
         await callback.message.edit_text("Erkakning roziligi:", reply_markup=family_husband_agreement_keyboard())
         await state.set_state(Form.FAMILY_HUSBAND_AGREEMENT)
     elif w_choice in ["mjm_strangers", "erkak"]:
-        await callback.message.edit_text("O'zingiz haqingizda qo'shimcha ma'lumot, kimni qidirayotganingiz, kutilayotgan natijalar, va hokazo. Kiriting:",
+        await callback.message.edit_text("O'zingiz haqingizda qo'shimcha ma'lumot, kimni qidirayotganingiz, uchrashuvdan nima kutyapsiz, qo'shimcha istaklaringizo. Kiriting:",
                                          reply_markup=InlineKeyboardBuilder().button(text="◀️ Orqaga", callback_data="back_family_wife_choice").add(
                                              types.InlineKeyboardButton(text="❌ Bekor qilish", callback_data="cancel")).as_markup())
         await state.set_state(Form.ABOUT)
@@ -917,13 +918,13 @@ async def family_wife_choice_handler(callback: types.CallbackQuery, state: FSMCo
 async def family_husband_agreement_handler(callback: types.CallbackQuery, state: FSMContext):
     agreement = callback.data.split("_")[2]
     agreement_text = {
-        'yes': '✅ Ha rozi',
-        'convince': '🔄 Yo\'q, lekin men istayman (kondiraman)',
-        'unknown': '❓ Bilmayman, hali aytib ko\'rmadim'
+        '✅ Ha rozi': '✅ Ha rozi',
+        '🔄 Yo\'q, lekin men istayman (kondiraman)': '🔄 Yo\'q, lekin men istayman (kondiraman)',
+        '❓ Bilmayman, hali aytib ko\'rmadim': '❓ Bilmayman, hali aytib ko\'rmadim'
     }.get(agreement, 'None1')
     await state.update_data(husband_agreement=agreement_text)
     logging.info(f"User {callback.from_user.id} chose husband agreement: {agreement}")
-    await callback.message.edit_text("O'zingiz haqingizda qo'shimcha ma'lumot, kimni qidirayotganingiz, kutilayotgan natijalar, va hokazo. Kiriting:",
+    await callback.message.edit_text("O'zingiz haqingizda qo'shimcha ma'lumot, kimni qidirayotganingiz, uchrashuvdan nima kutyapsiz, qo'shimcha istaklaringizo. Kiriting:",
                                      reply_markup=InlineKeyboardBuilder().button(text="◀️ Orqaga", callback_data="back_family_husband_agreement").add(
                                          types.InlineKeyboardButton(text="❌ Bekor qilish", callback_data="cancel")).as_markup())
     await state.set_state(Form.ABOUT)
