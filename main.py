@@ -502,7 +502,7 @@ async def start_handler(message: types.Message, state: FSMContext):
         return
 
     await state.clear()
-    await message.answer("Salom! Iltimos, jinsingizni tanlang:", reply_markup=gender_keyboard())
+    await message.answer("Salom! {user.full_name} Iltimos, jinsingizni tanlang:", reply_markup=gender_keyboard())
     await state.set_state(Form.CHOOSE_GENDER)
     logging.info(f"User {message.from_user.id} started the bot.")
 
@@ -689,7 +689,7 @@ async def gender_handler(callback: types.CallbackQuery, state: FSMContext):
     phrase = random.choice(RANDOM_PHRASES)
     await state.update_data(voice_phrase=phrase)
     await callback.message.edit_text(
-        f"Jinsingiz tanlandi. Endi iltimos, quyidagi gapni ovozli xabar sifatida yuboring:Bu majburiy. Ishonch uchun\n\n`{phrase}`",
+        f"Jinsingiz tanlandi. Endi iltimos, quyidagi gapni ovozli xabar sifatida yuboring.\n Bu majburiy. Ishonch uchun\n\n`{phrase}`",
         parse_mode="Markdown"
     )
     await state.set_state(Form.VERIFY_VOICE)
@@ -769,7 +769,7 @@ async def pose_woman_handler(callback: types.CallbackQuery, state: FSMContext):
         pose = POSES_WOMAN[pose_index]
         await state.update_data(pose=pose)
         logging.info(f"User {callback.from_user.id} chose pose: {pose}")
-        await callback.message.edit_text("O'zingiz haqingizda qo'shimcha ma'lumot, kimni qidirayotganingiz, uchrashuvdan nima kutyapsiz, qo'shimcha istaklaringizo. Kiriting:",
+        await callback.message.edit_text("O'zingiz haqingizda qo'shimcha ma'lumot, kimni qidirayotganingiz, uchrashuvdan nima kutyapsiz, qo'shimcha istaklaringiz. Kiriting:",
                                          reply_markup=InlineKeyboardBuilder().button(text="◀️ Orqaga", callback_data="back_pose_woman").add(
                                              types.InlineKeyboardButton(text="❌ Bekor qilish", callback_data="cancel")).as_markup())
         await state.set_state(Form.ABOUT)
@@ -784,7 +784,7 @@ async def mjm_experience_female_handler(callback: types.CallbackQuery, state: FS
         experience = MJM_EXPERIENCE_FEMALE_OPTIONS[exp_index]
         await state.update_data(mjm_experience_female=experience)
         logging.info(f"User {callback.from_user.id} chose female MJM experience: {experience}")
-        await callback.message.edit_text("O'zingiz haqingizda qo'shimcha ma'lumot, kimni qidirayotganingiz, uchrashuvdan nima kutyapsiz, qo'shimcha istaklaringizo. Kiriting:",
+        await callback.message.edit_text("O'zingiz haqingizda qo'shimcha ma'lumot, kimni qidirayotganingiz, uchrashuvdan nima kutyapsiz, qo'shimcha istaklaringiz. Kiriting:",
                                          reply_markup=InlineKeyboardBuilder().button(text="◀️ Orqaga", callback_data="back_mjm_experience_female").add(
                                              types.InlineKeyboardButton(text="❌ Bekor qilish", callback_data="cancel")).as_markup())
         await state.set_state(Form.ABOUT)
@@ -811,7 +811,7 @@ async def jmj_details_handler(message: types.Message, state: FSMContext):
     details = message.text.strip()
     await state.update_data(jmj_details=details)
     logging.info(f"User {message.from_user.id} entered JMJ details.")
-    await message.answer("O'zingiz haqingizda qo'shimcha ma'lumot, kimni qidirayotganingiz, uchrashuvdan nima kutyapsiz, qo'shimcha istaklaringizo. Kiriting:",
+    await message.answer("O'zingiz haqingizda qo'shimcha ma'lumot, kimni qidirayotganingiz, uchrashuvdan nima kutyapsiz, qo'shimcha istaklaringiz. Kiriting:",
                          reply_markup=InlineKeyboardBuilder().button(text="◀️ Orqaga", callback_data="back_jmj_details").add(
                              types.InlineKeyboardButton(text="❌ Bekor qilish", callback_data="cancel")).as_markup())
     await state.set_state(Form.ABOUT)
@@ -896,7 +896,7 @@ async def family_wife_agreement_handler(callback: types.CallbackQuery, state: FS
     }.get(agreement, 'None1')
     await state.update_data(wife_agreement=agreement_text)
     logging.info(f"User {callback.from_user.id} chose wife agreement: {agreement}")
-    await callback.message.edit_text("O'zingiz haqingizda qo'shimcha ma'lumot, kimni qidirayotganingiz, uchrashuvdan nima kutyapsiz, qo'shimcha istaklaringizo. Kiriting:",
+    await callback.message.edit_text("O'zingiz haqingizda qo'shimcha ma'lumot, kimni qidirayotganingiz, uchrashuvdan nima kutyapsiz, qo'shimcha istaklaringiz. Kiriting:",
                                      reply_markup=InlineKeyboardBuilder().button(text="◀️ Orqaga", callback_data="back_family_wife_agreement").add(
                                          types.InlineKeyboardButton(text="❌ Bekor qilish", callback_data="cancel")).as_markup())
     await state.set_state(Form.ABOUT)
@@ -911,7 +911,7 @@ async def family_wife_choice_handler(callback: types.CallbackQuery, state: FSMCo
         await callback.message.edit_text("Erkakning roziligi:", reply_markup=family_husband_agreement_keyboard())
         await state.set_state(Form.FAMILY_HUSBAND_AGREEMENT)
     elif w_choice in ["mjm_strangers", "erkak"]:
-        await callback.message.edit_text("O'zingiz haqingizda qo'shimcha ma'lumot, kimni qidirayotganingiz, uchrashuvdan nima kutyapsiz, qo'shimcha istaklaringizo. Kiriting:",
+        await callback.message.edit_text("O'zingiz haqingizda qo'shimcha ma'lumot, kimni qidirayotganingiz, uchrashuvdan nima kutyapsiz, qo'shimcha istaklaringiz. Kiriting:",
                                          reply_markup=InlineKeyboardBuilder().button(text="◀️ Orqaga", callback_data="back_family_wife_choice").add(
                                              types.InlineKeyboardButton(text="❌ Bekor qilish", callback_data="cancel")).as_markup())
         await state.set_state(Form.ABOUT)
@@ -928,7 +928,7 @@ async def family_husband_agreement_handler(callback: types.CallbackQuery, state:
     }.get(agreement, 'None1')
     await state.update_data(husband_agreement=agreement_text)
     logging.info(f"User {callback.from_user.id} chose husband agreement: {agreement}")
-    await callback.message.edit_text("O'zingiz haqingizda qo'shimcha ma'lumot, kimni qidirayotganingiz, uchrashuvdan nima kutyapsiz, qo'shimcha istaklaringizo. Kiriting:",
+    await callback.message.edit_text("O'zingiz haqingizda qo'shimcha ma'lumot, kimni qidirayotganingiz, uchrashuvdan nima kutyapsiz, qo'shimcha istaklaringiz. Kiriting:",
                                      reply_markup=InlineKeyboardBuilder().button(text="◀️ Orqaga", callback_data="back_family_husband_agreement").add(
                                          types.InlineKeyboardButton(text="❌ Bekor qilish", callback_data="cancel")).as_markup())
     await state.set_state(Form.ABOUT)
