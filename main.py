@@ -695,10 +695,10 @@ async def gender_handler(callback: types.CallbackQuery, state: FSMContext):
         )
         await state.clear()
         await callback.answer(
-            "Erkaklar uchun ro'yxatdan o'tish hozircha mavjud emas. Bu faqat ayollar va oilalar uchun\n
-            Erkaklar uchun alohida botimiz mavjud. Ro'yxatdan o'tish uchun pastdagi botga yozing"
+            "Erkaklar uchun ro'yxatdan o'tish hozircha mavjud emas. Bu faqat ayollar va oilalar uchun.\n"
+            "Erkaklar uchun alohida botimiz mavjud. Ro'yxatdan o'tish uchun pastdagi botga yozing",
             show_alert=True
-        )
+)
         return
 
     # Random phrase generation and prompt for voice message
