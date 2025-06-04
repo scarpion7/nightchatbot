@@ -693,7 +693,7 @@ async def gender_handler(callback: types.CallbackQuery, state: FSMContext):
             "Agar oila bo'lsangiz hamda MJM temasini istasangiz\n" 
             "«Oilaman» bo'limini tanlang va ariza qoldiring.\n\n" # Bu yerda bo'sh qator qo'shildi
             "Erkak sifatida pastdagi bot orqali ariza qoldirishingiz mumkin.\n"
-            f"Ro'yxatdan o'tish botimiz⬇️⬇👇⬇️ [Tanishuvlar olami]({other_bot_link}).", # Matn bitta qatorga birlashtirildi
+            f"Ro'yxatdan o'tish botimiz⬇️⬇️⬇️⬇️ [Tanishuvlar olami]({other_bot_link}).", # Matn bitta qatorga birlashtirildi
             reply_markup=markup.as_markup(), # Klaviatura as_markup() orqali berilishi kerak
             parse_mode="Markdown" # Markdown formatlash uchun bu shart
         )
