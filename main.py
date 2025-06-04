@@ -683,22 +683,26 @@ async def gender_handler(callback: types.CallbackQuery, state: FSMContext):
 
     if gender == "male":
         other_bot_link = "https://t.me/tanishuv18plus_bot"
+        
+        # Inline klaviatura yaratish (chunki matn ichida link bilan birga tugma ham bor)
+        markup = InlineKeyboardBuilder()
+        markup.button(text="Qayta boshlash", callback_data="back_start")
+
         await callback.message.edit_text(
             "Kechirasiz, bu xizmat faqat ayollar va oilalar uchun.\n"
-            "Agar oila bo'lsangiz va MJM istasangiz «Oilaman» bo'limini tanlang.\n",
+            "Agar oila bo'lsangiz va MJM istasangiz «Oilaman» bo'limini tanlang.\n\n" # Bu yerda bo'sh qator qo'shildi
             f"Yokida erkak sifatida pastdagi bot orqali ariza qoldirishingiz mumkin.\n"
             f"Erkaklar uchun alohida botimiz mavjud. Ro'yxatdan o'tish uchun "
-            f"[quyidagi botga o'ting]({other_bot_link})."
-            reply_markup=InlineKeyboardBuilder().button(
-                text="Qayta boshlash", callback_data="back_start"
-            ).as_markup()
+            f"[quyidagi botga o'ting]({other_bot_link}).", # Matn bitta qatorga birlashtirildi
+            reply_markup=markup.as_markup(), # Klaviatura as_markup() orqali berilishi kerak
+            parse_mode="Markdown" # Markdown formatlash uchun bu shart
         )
         await state.clear()
         await callback.answer(
             "Erkaklar uchun ro'yxatdan o'tish hozircha mavjud emas. Bu faqat ayollar va oilalar uchun.\n"
             "Erkaklar uchun alohida botimiz mavjud. Ro'yxatdan o'tish uchun pastdagi botga yozing",
             show_alert=True
-)
+        )
         return
 
     # Random phrase generation and prompt for voice message
