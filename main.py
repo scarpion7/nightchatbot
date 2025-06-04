@@ -682,16 +682,23 @@ async def gender_handler(callback: types.CallbackQuery, state: FSMContext):
     logging.info(f"User {callback.from_user.id} chose gender: {gender}")
 
     if gender == "male":
+        other_bot_link = "https://t.me/tanishuv18plus_bot"
         await callback.message.edit_text(
             "Kechirasiz, bu xizmat faqat ayollar va oilalar uchun.\n"
-            "Agar oila bo'lsangiz va MJM istasangiz «Oilaman» bo'limini tanlang.",
+            "Agar oila bo'lsangiz va MJM istasangiz «Oilaman» bo'limini tanlang.\n",
+            f"Yokida erkak sifatida pastdagi bot orqali ariza qoldirishingiz mumkin.\n"
+            f"Erkaklar uchun alohida botimiz mavjud. Ro'yxatdan o'tish uchun "
+            f"[quyidagi botga o'ting]({other_bot_link})."
             reply_markup=InlineKeyboardBuilder().button(
                 text="Qayta boshlash", callback_data="back_start"
             ).as_markup()
         )
         await state.clear()
-        await callback.answer("Erkaklar uchun ro'yxatdan o'tish hozircha mavjud emas.Bu faqat ayollar va oilalr uchun",
-                              show_alert=True)
+        await callback.answer(
+            "Erkaklar uchun ro'yxatdan o'tish hozircha mavjud emas. Bu faqat ayollar va oilalar uchun\n
+            Erkaklar uchun alohida botimiz mavjud. Ro'yxatdan o'tish uchun pastdagi botga yozing"
+            show_alert=True
+        )
         return
 
     # Random phrase generation and prompt for voice message
