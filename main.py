@@ -44,7 +44,6 @@ class Form(StatesGroup):
     FEMALE_CHOICE = State()
     POSE_WOMAN = State()
     MJM_EXPERIENCE = State()  # Umumiy MJM tajribasi (Oila uchun)
-    JMJ_EXPERIENCE = State()
     MJM_EXPERIENCE_FEMALE = State()  # Ayol uchun MJM tajribasi (Alohida state)
     JMJ_AGE = State()
     JMJ_DETAILS = State()
@@ -55,6 +54,8 @@ class Form(StatesGroup):
     FAMILY_WIFE_AGREEMENT = State()
     FAMILY_WIFE_CHOICE = State()
     FAMILY_HUSBAND_AGREEMENT = State()
+    FAMILY_JMJ_EXPERIENCE = State() # Oila uchun yangi JMJ tajribasi state
+    FAMILY_JMJ_PARTNER_PREFERENCE = State() # Oila uchun JMJ sherik afzalligi state
     ABOUT = State()
 
 
@@ -131,13 +132,6 @@ MJM_EXPERIENCE_OPTIONS = [
     "5 martadan ko'p (MJMni sevamiz)"
 ]
 
-JMJ_EXPERIENCE_OPTIONS = [
-    "Hali bo'lmagan 1-si",
-    "1 marta bo'lgan",
-    "2-3 marta bo'lgan",
-    "5 martadan ko'p (JMJni sevamiz)"
-]
-
 # MJM tajribasi variantlari (Ayol uchun)
 MJM_EXPERIENCE_FEMALE_OPTIONS = [
     "Hali bo'lmagan 1-si",
@@ -145,6 +139,22 @@ MJM_EXPERIENCE_FEMALE_OPTIONS = [
     "2-3 marta bo'lgan",
     "5 martadan ko'p (MJMni sevaman)"
 ]
+
+# JMJ tajribasi variantlari (Oila uchun)
+JMJ_EXPERIENCE_OPTIONS = [
+    "Hali bo'lmagan 1-si",
+    "1 marta bo'lgan",
+    "2-3 marta bo'lgan",
+    "5 martadan ko'p (JMJni sevamiz)"
+]
+
+# Ayol sherik qanday bo'lishi istashini so'rash variantlari (Oila uchun JMJ)
+JMJ_PARTNER_PREFERENCE_OPTIONS = [
+    "Tajribali",
+    "Tajribasiz",
+    "Farqi yo'q"
+]
+
 
 # Suhbat rejimida bo'lgan foydalanuvchilar IDsi
 chat_mode_users = set()
@@ -233,6 +243,22 @@ def mjm_experience_keyboard(is_female=False):
 
     return builder.as_markup()
 
+# JMJ tajribasini tanlash klaviaturasi (Oila uchun)
+def jmj_experience_family_keyboard():
+    builder = InlineKeyboardBuilder()
+    for idx, option in enumerate(JMJ_EXPERIENCE_OPTIONS):
+        builder.row(types.InlineKeyboardButton(text=option, callback_data=f"jmj_exp_family_{idx}"))
+    add_navigation_buttons(builder, "family_husband_choice") # Oldingi bosqichni qayta ko'rib chiqing
+    return builder.as_markup()
+
+# Ayol sherik qanday bo'lishi istashini so'rash klaviaturasi (Oila uchun JMJ)
+def jmj_partner_preference_keyboard():
+    builder = InlineKeyboardBuilder()
+    for idx, option in enumerate(JMJ_PARTNER_PREFERENCE_OPTIONS):
+        builder.row(types.InlineKeyboardButton(text=option, callback_data=f"jmj_partner_pref_{idx}"))
+    add_navigation_buttons(builder, "family_jmj_experience") # Oldingi bosqichni qayta ko'rib chiqing
+    return builder.as_markup()
+
 
 # Oila: Kim yozmoqda klaviaturasi (Vertical)
 def family_author_keyboard():
@@ -248,6 +274,7 @@ def family_husband_choice_keyboard():
     builder = InlineKeyboardBuilder()
     builder.row(types.InlineKeyboardButton(text="👥 MJM", callback_data="h_choice_mjm"))
     builder.row(types.InlineKeyboardButton(text="👨 Erkak (ayolim uchun)", callback_data="h_choice_erkak"))
+    builder.row(types.InlineKeyboardButton(text="👭 JMJ", callback_data="h_choice_jmj")) # JMJ tugmasi qo'shildi
     add_navigation_buttons(builder, "family_author")
     return builder.as_markup()
 
@@ -271,6 +298,7 @@ def family_wife_choice_keyboard():
     builder.row(types.InlineKeyboardButton(text="👥 MJM (erim bilan)", callback_data="w_choice_mjm_husband"))
     builder.row(types.InlineKeyboardButton(text="👥 MJM (begona 2 erkak bilan)", callback_data="w_choice_mjm_strangers"))
     builder.row(types.InlineKeyboardButton(text="👨 Erkak (erimdan qoniqmayapman)", callback_data="w_choice_erkak"))
+    builder.row(types.InlineKeyboardButton(text="👭 JMJ", callback_data="w_choice_jmj")) # JMJ tugmasi qo'shildi
     add_navigation_buttons(builder, "family_author")
     return builder.as_markup()
 
@@ -339,18 +367,25 @@ async def send_application_to_destinations(data: dict, user: types.User):
             f"✍️ **Yozmoqda:** {'Erkak' if data.get('author') == 'husband' else ('Ayol' if data.get('author') == 'wife' else 'Kiritilmagan')}\n"
         )
         if data.get('author') == 'husband':
-            h_choice_text = {'mjm': '👥 MJM', 'erkak': '👨 Erkak (ayoli uchun)'}.get(data.get('h_choice'), 'Kiritilmagan')
+            h_choice_text = {'mjm': '👥 MJM', 'erkak': '👨 Erkak (ayoli uchun)', 'jmj': '👭 JMJ'}.get(data.get('h_choice'), 'Kiritilmagan')
             admin_message_text += f"🎯 **Erkak tanlovi:** {h_choice_text}\n"
             if data.get('h_choice') == 'mjm':
                 admin_message_text += f"👥 **MJM tajriba:** {data.get('mjm_experience', 'Kiritilmagan')}\n"
+            elif data.get('h_choice') == 'jmj':
+                admin_message_text += f"👭 **JMJ tajriba:** {data.get('family_jmj_experience', 'Kiritilmagan')}\n"
+                admin_message_text += f"👩‍❤‍👩 **Ayol sherik afzalligi:** {data.get('family_jmj_partner_preference', 'Kiritilmagan')}\n"
             admin_message_text += f"👩‍⚕️ **Ayol roziligi:** {data.get('wife_agreement', 'Kiritilmagan')}\n"
 
         elif data.get('author') == 'wife':
             w_choice_text = {'mjm_husband': '👥 MJM (erim bilan)', 'mjm_strangers': '👥 MJM (begona 2 erkak bilan)',
-                             'erkak': '👨 Erkak (erimdan qoniqmayapman)'}.get(data.get('w_choice'), 'Kiritilmagan')
+                             'erkak': '👨 Erkak (erimdan qoniqmayapman)', 'jmj': '👭 JMJ'}.get(data.get('w_choice'), 'Kiritilmagan')
             admin_message_text += f"🎯 **Ayol tanlovi:** {w_choice_text}\n"
             if data.get('w_choice') == 'mjm_husband':
                 admin_message_text += f"👨‍⚕️ **Erkak roziligi:** {data.get('husband_agreement', 'Kiritilmagan')}\n"
+            elif data.get('w_choice') == 'jmj':
+                admin_message_text += f"👭 **JMJ tajriba:** {data.get('family_jmj_experience', 'Kiritilmagan')}\n"
+                admin_message_text += f"👩‍❤‍👩 **Ayol sherik afzalligi:** {data.get('family_jmj_partner_preference', 'Kiritilmagan')}\n"
+
 
     if data.get('about'):
         admin_message_text += f"ℹ️ **Qo'shimcha malumotlar / Istaklar:** {data.get('about', 'Kiritilmagan')}\n"
@@ -458,11 +493,15 @@ async def send_application_to_destinations(data: dict, user: types.User):
             author_text = {'husband': 'Erkak', 'wife': 'Ayol'}.get(data['author'], 'Kiritilmagan')
             channel_text += f"✍️ **Yozmoqda:** {author_text}\n"
         if data.get('h_choice') and data.get('author') == 'husband':
-            h_choice_text = {'mjm': '👥 MJM', 'erkak': '👨 Erkak (ayoli uchun)'}.get(data['h_choice'], 'Kiritilmagan')
+            h_choice_text = {'mjm': '👥 MJM', 'erkak': '👨 Erkak (ayoli uchun)', 'jmj': '👭 JMJ'}.get(data['h_choice'], 'Kiritilmagan')
             channel_text += f"🎯 **Erkak tanlovi:** {h_choice_text}\n"
         if data.get('mjm_experience') and data.get('author') == 'husband' and data.get(
                 'h_choice') == 'mjm':
             channel_text += f"👥 **MJM tajriba:** {data['mjm_experience']}\n"
+        if data.get('family_jmj_experience') and data.get('author') == 'husband' and data.get('h_choice') == 'jmj':
+            channel_text += f"👭 **JMJ tajriba:** {data['family_jmj_experience']}\n"
+        if data.get('family_jmj_partner_preference') and data.get('author') == 'husband' and data.get('h_choice') == 'jmj':
+            channel_text += f"👩‍❤‍👩 **Ayol sherik afzalligi:** {data['family_jmj_partner_preference']}\n"
         if data.get('wife_agreement') and data.get('author') == 'husband':
             wife_agree_text = {'✅ Ha rozi': '✅ Ha rozi', '🔄 Yo\'q, lekin men istayman': '🔄 Yo\'q, lekin men istayman',
                                '❓ Bilmayman, hali aytmadim': '❓ Bilmayman, hali aytmadim'}.get(data['wife_agreement'],
@@ -470,7 +509,7 @@ async def send_application_to_destinations(data: dict, user: types.User):
             channel_text += f"👩‍⚕️ **Ayol roziligi:** {wife_agree_text}\n"
         if data.get('w_choice') and data.get('author') == 'wife':
             w_choice_text = {'mjm_husband': '👥 MJM (erim bilan)', 'mjm_strangers': '👥 MJM (begona 2 erkak bilan)',
-                             'erkak': '👨 Erkak (erimdan qoniqmayapman)'}.get(data['w_choice'], 'Kiritilmagan')
+                             'erkak': '👨 Erkak (erimdan qoniqmayapman)', 'jmj': '👭 JMJ'}.get(data['w_choice'], 'Kiritilmagan')
             channel_text += f"🎯 **Ayol tanlovi:** {w_choice_text}\n"
         if data.get('husband_agreement') and data.get('author') == 'wife' and data.get('w_choice') == 'mjm_husband':
             husband_agree_text = {'✅ Ha rozi': '✅ Ha rozi',
@@ -478,6 +517,11 @@ async def send_application_to_destinations(data: dict, user: types.User):
                                   '❓ Bilmayman, hali aytmadim': '❓ Bilmayman, hali aytmadim'}.get(
                 data['husband_agreement'], 'Kiritilmagan')
             channel_text += f"👨‍⚕️ **Erkak roziligi:** {husband_agree_text}\n"
+        if data.get('family_jmj_experience') and data.get('author') == 'wife' and data.get('w_choice') == 'jmj':
+            channel_text += f"👭 **JMJ tajriba:** {data['family_jmj_experience']}\n"
+        if data.get('family_jmj_partner_preference') and data.get('author') == 'wife' and data.get('w_choice') == 'jmj':
+            channel_text += f"👩‍❤‍👩 **Ayol sherik afzalligi:** {data['family_jmj_partner_preference']}\n"
+
 
     if data.get('about'):
         channel_text += f"ℹ️ **Qo'shimcha malumotlar / Istaklar:** {data['about']}\n"
@@ -630,6 +674,12 @@ async def back_handler(callback: types.CallbackQuery, state: FSMContext):
     elif target_state_name == "family_husband_agreement":
         await callback.message.edit_text("Erkakning roziligi:", reply_markup=family_husband_agreement_keyboard())
         await state.set_state(Form.FAMILY_HUSBAND_AGREEMENT)
+    elif target_state_name == "family_jmj_experience": # JMJ tajribasidan orqaga
+        await callback.message.edit_text("JMJ tajribangizni tanlang:", reply_markup=jmj_experience_family_keyboard())
+        await state.set_state(Form.FAMILY_JMJ_EXPERIENCE)
+    elif target_state_name == "family_jmj_partner_preference": # JMJ sherik afzalligidan orqaga
+        await callback.message.edit_text("Ayol sherik qanday bo'lishini istaysiz?", reply_markup=jmj_partner_preference_keyboard())
+        await state.set_state(Form.FAMILY_JMJ_PARTNER_PREFERENCE)
     elif target_state_name == "about":
         prev_state_for_about = None
         if data.get('gender') == 'female':
@@ -644,14 +694,20 @@ async def back_handler(callback: types.CallbackQuery, state: FSMContext):
             author = data.get('author')
             if author == 'husband':
                 h_choice = data.get('h_choice')
-                if h_choice in ['mjm', 'erkak']:
+                if h_choice == 'mjm':
+                    prev_state_for_about = Form.MJM_EXPERIENCE
+                elif h_choice == 'erkak':
                     prev_state_for_about = Form.FAMILY_WIFE_AGREEMENT
+                elif h_choice == 'jmj':
+                    prev_state_for_about = Form.FAMILY_JMJ_PARTNER_PREFERENCE # JMJ qo'shildi
             elif author == 'wife':
                 w_choice = data.get('w_choice')
                 if w_choice == 'mjm_husband':
                     prev_state_for_about = Form.FAMILY_HUSBAND_AGREEMENT
                 elif w_choice in ['mjm_strangers', 'erkak']:
                     prev_state_for_about = Form.FAMILY_WIFE_CHOICE
+                elif w_choice == 'jmj':
+                    prev_state_for_about = Form.FAMILY_JMJ_PARTNER_PREFERENCE # JMJ qo'shildi
         if prev_state_for_about:
             await state.set_state(prev_state_for_about)
             if prev_state_for_about == Form.POSE_WOMAN:
@@ -672,6 +728,10 @@ async def back_handler(callback: types.CallbackQuery, state: FSMContext):
             elif prev_state_for_about == Form.FAMILY_HUSBAND_AGREEMENT:
                 await callback.message.edit_text("Erkakning roziligi:",
                                                  reply_markup=family_husband_agreement_keyboard())
+            elif prev_state_for_about == Form.FAMILY_JMJ_EXPERIENCE:
+                await callback.message.edit_text("JMJ tajribangizni tanlang:", reply_markup=jmj_experience_family_keyboard())
+            elif prev_state_for_about == Form.FAMILY_JMJ_PARTNER_PREFERENCE:
+                await callback.message.edit_text("Ayol sherik qanday bo'lishini istaysiz?", reply_markup=jmj_partner_preference_keyboard())
             else:
                 await state.set_state(Form.CHOOSE_GENDER)
                 await callback.message.edit_text("Iltimos, jinsingizni tanlang:", reply_markup=gender_keyboard())
@@ -705,8 +765,7 @@ async def gender_handler(callback: types.CallbackQuery, state: FSMContext):
             reply_markup=markup.as_markup(), # Klaviatura as_markup() orqali berilishi kerak
             parse_mode="Markdown" # Markdown formatlash uchun bu shart
         )
-        await state.clear()
-        await callback.answer(
+        await state.answer(
             "Erkaklar uchun ro'yxatdan o'tish mavjud emas. \n"
             "Bu faqat ayollar va oilalar uchun.\n"
             "Erkaklar uchun alohida botimiz mavjud.\n"
@@ -834,7 +893,13 @@ async def jmj_age_handler(message: types.Message, state: FSMContext):
     if not re.match(r"^\d{2}$", age):
         await message.answer("Yoshingizni kiriting (masalan, 20, 33, 45).")
         return
-    await message.answer(f"Yoshingiz qabul qilindi: {age}")
+    
+    # Oldingi xabarni o'chirish
+    await message.delete() 
+    current_message = await message.answer(f"Yoshingiz qabul qilindi: {age}")
+    await asyncio.sleep(1) # Kichik pauza
+    await current_message.delete()
+
 
     await state.update_data(jmj_age=age)
     logging.info(f"User {message.from_user.id} entered JMJ age: {age}")
@@ -859,7 +924,12 @@ async def family_husband_age_handler(message: types.Message, state: FSMContext):
     if not re.match(r"^\d{2}$", age):
         await message.answer("Yoshingizni kiriting (masalan: 18, 22, 33).")
         return
-    await message.answer(f"Yoshingiz qabul qilindi: {age}")
+    
+    # Oldingi xabarni o'chirish
+    await message.delete() 
+    current_message = await message.answer(f"Erkakning yoshi qabul qilindi: {age}")
+    await asyncio.sleep(1) # Kichik pauza
+    await current_message.delete()
 
     await state.update_data(husband_age=age)
     logging.info(f"User {message.from_user.id} entered husband's age: {age}")
@@ -873,12 +943,17 @@ async def family_wife_age_handler(message: types.Message, state: FSMContext):
     if not re.match(r"^\d{2}$", age):  # Faqat 2 xonali raqamlar, masalan 18, 22, 33
         await message.answer("Yoshingizni kiriting (masalan: 18, 22, 33).")
         return
-    await message.answer(f"Yoshingiz qabul qilindi: {age}")
+    
+    # Oldingi xabarlarni o'chirish
+    await message.delete() # Foydalanuvchi kiritgan yozuvni o'chiradi
+    current_message = await message.answer(f"Ayolning yoshi qabul qilindi: {age}")
+    await asyncio.sleep(1) # Kichik pauza
+    await current_message.delete()
+
     await state.update_data(wife_age=age)
     logging.info(f"User {message.from_user.id} entered wife's age: {age}")
     await message.answer("Kim yozmoqda:", reply_markup=family_author_keyboard())
     await state.set_state(Form.FAMILY_AUTHOR)
-    await message.delete()  # Delete previous message with age input
 
 
 @dp.callback_query(F.data.startswith("author_"), Form.FAMILY_AUTHOR)
@@ -907,7 +982,37 @@ async def family_husband_choice_handler(callback: types.CallbackQuery, state: FS
     elif h_choice == "erkak":
         await callback.message.edit_text("Ayolning roziligi:", reply_markup=family_wife_agreement_keyboard())
         await state.set_state(Form.FAMILY_WIFE_AGREEMENT)
+    elif h_choice == "jmj": # JMJ tanlansa
+        await callback.message.edit_text("JMJ tajribangizni tanlang:", reply_markup=jmj_experience_family_keyboard())
+        await state.set_state(Form.FAMILY_JMJ_EXPERIENCE)
     await callback.answer()
+
+@dp.callback_query(F.data.startswith("jmj_exp_family_"), Form.FAMILY_JMJ_EXPERIENCE)
+async def family_jmj_experience_handler(callback: types.CallbackQuery, state: FSMContext):
+    exp_index = int(callback.data.split("_")[3])
+    if 0 <= exp_index < len(JMJ_EXPERIENCE_OPTIONS):
+        experience = JMJ_EXPERIENCE_OPTIONS[exp_index]
+        await state.update_data(family_jmj_experience=experience)
+        logging.info(f"User {callback.from_user.id} chose family JMJ experience: {experience}")
+        await callback.message.edit_text("Ayol sherik qanday bo'lishini istaysiz?", reply_markup=jmj_partner_preference_keyboard())
+        await state.set_state(Form.FAMILY_JMJ_PARTNER_PREFERENCE)
+    else:
+        await callback.answer("Noto'g'ri tanlov.", show_alert=True)
+
+@dp.callback_query(F.data.startswith("jmj_partner_pref_"), Form.FAMILY_JMJ_PARTNER_PREFERENCE)
+async def family_jmj_partner_preference_handler(callback: types.CallbackQuery, state: FSMContext):
+    pref_index = int(callback.data.split("_")[3])
+    if 0 <= pref_index < len(JMJ_PARTNER_PREFERENCE_OPTIONS):
+        preference = JMJ_PARTNER_PREFERENCE_OPTIONS[pref_index]
+        await state.update_data(family_jmj_partner_preference=preference)
+        logging.info(f"User {callback.from_user.id} chose family JMJ partner preference: {preference}")
+        await callback.message.edit_text(
+            "O'zingiz haqingizda qo'shimcha ma'lumot, kimni qidirayotganingiz, uchrashuvdan nima kutyapsiz, qo'shimcha istaklaringiz. Kiriting:",
+            reply_markup=InlineKeyboardBuilder().button(text="◀️ Orqaga", callback_data="back_family_jmj_partner_preference").add(
+                types.InlineKeyboardButton(text="❌ Bekor qilish", callback_data="cancel")).as_markup())
+        await state.set_state(Form.ABOUT)
+    else:
+        await callback.answer("Noto'g'ri tanlov.", show_alert=True)
 
 
 @dp.callback_query(F.data.startswith("mjm_exp_family_"), Form.MJM_EXPERIENCE)
@@ -927,9 +1032,9 @@ async def mjm_experience_family_handler(callback: types.CallbackQuery, state: FS
 async def family_wife_agreement_handler(callback: types.CallbackQuery, state: FSMContext):
     agreement = callback.data.split("_")[2]
     agreement_text = {
-        '✅ Ha rozi': '✅ Ha rozi',
-        '🔄 Yo\'q, lekin men istayman (kondiraman)': '🔄 Yo\'q, lekin men istayman (kondiraman)',
-        '❓ Bilmayman, hali aytib ko\'rmadim': '❓ Bilmayman, hali aytib ko\'rmadim'
+        'Rozi': '✅ Ha rozi',
+        'Rozi_emas': '🔄 Yo\'q, lekin men istayman (kondiraman)',
+        'Bilmayman': '❓ Bilmayman, hali aytib ko\'rmadim'
     }.get(agreement, 'Kiritilmagan')
     await state.update_data(wife_agreement=agreement_text)
     logging.info(f"User {callback.from_user.id} chose wife agreement: {agreement}")
@@ -954,6 +1059,9 @@ async def family_wife_choice_handler(callback: types.CallbackQuery, state: FSMCo
             reply_markup=InlineKeyboardBuilder().button(text="◀️ Orqaga", callback_data="back_family_wife_choice").add(
                 types.InlineKeyboardButton(text="❌ Bekor qilish", callback_data="cancel")).as_markup())
         await state.set_state(Form.ABOUT)
+    elif w_choice == "jmj": # JMJ tanlansa
+        await callback.message.edit_text("JMJ tajribangizni tanlang:", reply_markup=jmj_experience_family_keyboard())
+        await state.set_state(Form.FAMILY_JMJ_EXPERIENCE)
     await callback.answer()
 
 
@@ -961,9 +1069,9 @@ async def family_wife_choice_handler(callback: types.CallbackQuery, state: FSMCo
 async def family_husband_agreement_handler(callback: types.CallbackQuery, state: FSMContext):
     agreement = callback.data.split("_")[2]
     agreement_text = {
-        '✅ Ha rozi': '✅ Ha rozi',
-        '🔄 Yo\'q, lekin men istayman (kondiraman)': '🔄 Yo\'q, lekin men istayman (kondiraman)',
-        '❓ Bilmayman, hali aytib ko\'rmadim': '❓ Bilmayman, hali aytib ko\'rmadim'
+        'Rozi': '✅ Ha rozi',
+        'Rozi_emas': '🔄 Yo\'q, lekin men istayman (kondiraman)',
+        'Bilmayman': '❓ Bilmayman, hali aytib ko\'rmadim'
     }.get(agreement, 'Kiritilmagan')
     await state.update_data(husband_agreement=agreement_text)
     logging.info(f"User {callback.from_user.id} chose husband agreement: {agreement}")
@@ -990,7 +1098,7 @@ async def about_handler(message: types.Message, state: FSMContext):
 # Admin javob berish funksiyasi
 @dp.callback_query(F.data.startswith("admin_initiate_reply_"))
 async def admin_initiate_reply(callback: types.CallbackQuery, state: FSMContext):
-    if callback.from_user.id != ADMIN_USER_ID and callback.from_user.id != ADMIN_GROUP_ID:
+    if callback.from_user.id != ADMIN_USER_ID and callback.from_user.id != ADMIN_GROUP_ID and callback.from_user.id != ADMIN_SECOND_GROUP_ID:
         await callback.answer("Sizda bu funksiyani ishlatish huquqi yo'q.", show_alert=True)
         return
 
@@ -1008,7 +1116,7 @@ async def admin_initiate_reply(callback: types.CallbackQuery, state: FSMContext)
 
 @dp.message(Command("endchat"), AdminState.REPLYING_TO_USER)
 async def end_chat_from_admin(message: types.Message, state: FSMContext):
-    if message.from_user.id != ADMIN_USER_ID and message.from_user.id != ADMIN_GROUP_ID:
+    if message.from_user.id != ADMIN_USER_ID and message.from_user.id != ADMIN_GROUP_ID and message.from_user.id != ADMIN_SECOND_GROUP_ID:
         return
 
     data = await state.get_data()
@@ -1026,7 +1134,7 @@ async def end_chat_from_admin(message: types.Message, state: FSMContext):
 
 @dp.message(F.sticker, AdminState.REPLYING_TO_USER)
 async def admin_send_sticker_to_user(message: types.Message, state: FSMContext):
-    if message.from_user.id != ADMIN_USER_ID:
+    if message.from_user.id != ADMIN_USER_ID and message.from_user.id != ADMIN_GROUP_ID and message.from_user.id != ADMIN_SECOND_GROUP_ID:
         return
     data = await state.get_data()
     target_user_id = data.get('target_user_id')
@@ -1041,7 +1149,7 @@ async def admin_send_sticker_to_user(message: types.Message, state: FSMContext):
 
 @dp.message(F.sticker)
 async def user_send_sticker(message: types.Message):
-    if message.from_user.id == ADMIN_USER_ID:
+    if message.from_user.id == ADMIN_USER_ID or message.from_user.id == ADMIN_GROUP_ID or message.from_user.id == ADMIN_SECOND_GROUP_ID:
         return  # Admindan umumiy rejimda kelgan stikerlarni qayta ishlashmaydi
     try:
         profile_link = f"tg://user?id={message.from_user.id}"
@@ -1059,7 +1167,7 @@ async def user_send_sticker(message: types.Message):
 
 @dp.message(F.text, AdminState.REPLYING_TO_USER)
 async def admin_reply_to_user(message: types.Message, state: FSMContext):
-    if message.from_user.id != ADMIN_USER_ID and message.from_user.id != ADMIN_GROUP_ID:
+    if message.from_user.id != ADMIN_USER_ID and message.from_user.id != ADMIN_GROUP_ID and message.from_user.id != ADMIN_SECOND_GROUP_ID:
         return
 
     data = await state.get_data()
