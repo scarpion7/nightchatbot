@@ -44,6 +44,7 @@ class Form(StatesGroup):
     FEMALE_CHOICE = State()
     POSE_WOMAN = State()
     MJM_EXPERIENCE = State()  # Umumiy MJM tajribasi (Oila uchun)
+    JMJ_EXPERIENCE = State()
     MJM_EXPERIENCE_FEMALE = State()  # Ayol uchun MJM tajribasi (Alohida state)
     JMJ_AGE = State()
     JMJ_DETAILS = State()
@@ -128,6 +129,13 @@ MJM_EXPERIENCE_OPTIONS = [
     "1 marta bo'lgan",
     "2-3 marta bo'lgan",
     "5 martadan ko'p (MJMni sevamiz)"
+]
+
+JMJ_EXPERIENCE_OPTIONS = [
+    "Hali bo'lmagan 1-si",
+    "1 marta bo'lgan",
+    "2-3 marta bo'lgan",
+    "5 martadan ko'p (JMJni sevamiz)"
 ]
 
 # MJM tajribasi variantlari (Ayol uchun)
